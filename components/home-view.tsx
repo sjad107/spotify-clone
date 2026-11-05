@@ -13,6 +13,7 @@ import FilterChips from "./filter-chips";
 import PlayButton from "./play-button";
 import { usePlayer } from "./player-provider";
 import Shelf from "./shelf";
+import StretchedAction from "./stretched-action";
 import SiteFooter from "./site-footer";
 
 const FILTERS = [
@@ -124,8 +125,8 @@ function QuickAccessTile({
         variant={item.variant}
         className="h-12 w-12 shrink-0 rounded-none md:h-14 md:w-14"
       />
-      <button
-        type="button"
+      <StretchedAction
+        href={item.href}
         onClick={onToggle}
         className={cn(
           "line-clamp-2 min-w-0 flex-1 text-left text-xs font-bold after:absolute after:inset-0 md:text-sm",
@@ -133,7 +134,7 @@ function QuickAccessTile({
         )}
       >
         {item.title}
-      </button>
+      </StretchedAction>
       <PlayButton
         size="sm"
         playing={playing}

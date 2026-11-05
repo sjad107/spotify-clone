@@ -65,9 +65,26 @@ body {
   animation: panel-slide-close 0.5s cubic-bezier(0.47, 0, 0.23, 1.38);
 }
 
+/* The animated bars beside the playing song in a tracklist. */
+@keyframes playing-bar {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.playing-bar {
+  transform-origin: bottom;
+  animation: playing-bar 0.9s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .panel-slide-open,
-  .panel-slide-close {
+  .panel-slide-close,
+  .playing-bar {
     animation: none;
   }
 }

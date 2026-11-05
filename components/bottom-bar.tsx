@@ -16,14 +16,17 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
+import { Fragment } from "react";
 import { formatDuration } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import ArtistLink from "./artist-link";
 import CoverArt from "./cover-art";
 import ExplicitBadge from "./explicit-badge";
 import { LyricsIcon } from "./icons";
 import { usePanel } from "./panel-provider";
 import { PauseGlyph, PlayGlyph } from "./play-button";
 import PlayerSlider from "./player-slider";
+import SongLink from "./song-link";
 import { usePlayer, usePlayerProgress } from "./player-provider";
 
 const ICON_BUTTON =
@@ -166,10 +169,20 @@ const BottomBar = ({ className }: { className?: string }) => {
               <CoverArt seed={current.coverSeed} className="rounded" />
             </button>
             <div className="min-w-0">
-              <div className="truncate text-sm text-white">{current.title}</div>
+              <div className="truncate text-sm text-white">
+                <SongLink title={current.title} albumId={current.albumId} />
+              </div>
               <div className="truncate text-xs text-spotify-subdued">
                 {current.explicit && <ExplicitBadge />}
-                {current.subtitle}
+                {current.artists.map((name, position) => (
+                  <Fragment key={name}>
+                    {position > 0 && ", "}
+                    <ArtistLink
+                      name={name}
+                      className="hover:text-white hover:underline"
+                    />
+                  </Fragment>
+                ))}
               </div>
             </div>
             <button

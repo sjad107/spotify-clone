@@ -1,17 +1,17 @@
 "use client";
 
 import { Fragment } from "react";
-import Link from "next/link";
 import { PlusCircle } from "lucide-react";
-import { searchHref } from "@/lib/format";
 import type { Playable } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import ArtistLink from "./artist-link";
 import CoverArt from "./cover-art";
 import CreditsList from "./credits-list";
 import { ExpandViewIcon, HidePanelIcon, SavedIcon, ShareIcon } from "./icons";
 import { usePanel } from "./panel-provider";
 import { usePlayer } from "./player-provider";
 import QueueRow from "./queue-row";
+import SongLink from "./song-link";
 import TrackMenu from "./track-menu";
 
 const PANEL_CREDIT_COUNT = 2;
@@ -80,20 +80,16 @@ export function TrackHeading({
     <div className={cn("flex items-center gap-3", className)}>
       <div className="min-w-0 flex-1">
         <div className="truncate text-2xl font-bold text-white">
-          <Link href={searchHref(item.title)} className="hover:underline">
-            {item.title}
-          </Link>
+          <SongLink title={item.title} albumId={item.albumId} />
         </div>
         <div className="truncate text-sm text-spotify-subdued">
           {item.artists.map((name, index) => (
             <Fragment key={name}>
               {index > 0 && ", "}
-              <Link
-                href={searchHref(name)}
+              <ArtistLink
+                name={name}
                 className="hover:text-white hover:underline"
-              >
-                {name}
-              </Link>
+              />
             </Fragment>
           ))}
         </div>

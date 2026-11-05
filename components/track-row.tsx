@@ -1,18 +1,22 @@
 "use client";
 
+import Link from "next/link";
+import { Fragment } from "react";
 import { CheckCircle2, MoreHorizontal, PlusCircle } from "lucide-react";
-import { formatDuration } from "@/lib/format";
+import { albumHref, formatDuration } from "@/lib/format";
 import {
   albumById,
+  artistById,
   tracksToPlayables,
-  trackArtistNames,
   type Track,
 } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import ArtistLink from "./artist-link";
 import CoverArt from "./cover-art";
 import ExplicitBadge from "./explicit-badge";
 import { PauseGlyph, PlayGlyph } from "./play-button";
 import { usePlayer } from "./player-provider";
+import SongLink from "./song-link";
 
 interface TrackRowProps {
   track: Track;
@@ -91,18 +95,28 @@ export default function TrackRow({
               active ? "text-spotify-green" : "text-white"
             )}
           >
-            {track.title}
+            <SongLink title={track.title} albumId={track.albumId} />
           </div>
           <div className="truncate text-sm leading-snug text-spotify-subdued">
             {track.explicit && <ExplicitBadge />}
-            {trackArtistNames(track)}
+            {track.artistIds.map((id, position) => (
+              <Fragment key={id}>
+                {position > 0 && ", "}
+                <ArtistLink
+                  name={artistById(id)?.name ?? ""}
+                  className="hover:text-white hover:underline"
+                />
+              </Fragment>
+            ))}
           </div>
         </div>
       </div>
 
       {detailed && (
         <span className="hidden truncate text-sm text-spotify-subdued [@container_(min-width:560px)]:block">
-          {albumById(track.albumId)?.title}
+          <Link href={albumHref(track.albumId)} className="hover:underline">
+            {albumById(track.albumId)?.title}
+          </Link>
         </span>
       )}
 

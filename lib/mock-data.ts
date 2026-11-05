@@ -4,6 +4,7 @@
  */
 
 import { hashSeed } from "./cover";
+import { searchHref } from "./format";
 
 export interface Artist {
   type: "artist";
@@ -18,7 +19,7 @@ export interface Album {
   title: string;
   artistId: string;
   year: number;
-  kind: "Album" | "Single" | "EP";
+  kind: "Album" | "Single" | "EP" | "Compilation";
   genre: string;
 }
 
@@ -78,7 +79,7 @@ export interface Playable {
   title: string;
   subtitle: string;
   artists: string[];
-  albumTitle?: string;
+  albumId?: string;
   coverSeed: string;
   durationSec: number;
   explicit: boolean;
@@ -98,6 +99,8 @@ export interface CardItem {
   label?: string;
   /** Shown in the Now Playing header while this item is the queue's source. */
   sourceName: string;
+  /** Where clicking the item goes. Items without a page play instead. */
+  href?: string;
   playables: Playable[];
 }
 
@@ -157,6 +160,40 @@ export const albums: Album[] = [
   album("winter-sonatas", "Winter Sonatas", "aurora-keys", 2022, "Album", "Classical"),
   album("blue-mirage", "Blue Mirage", "dune-collective", 2024, "Album", "Jazz"),
   album("portside", "Portside", "neon-harbor", 2026, "Single", "Dance/Electronic"),
+  album("neon-summer", "Neon Summer", "nova-reign", 2022, "Album", "Pop"),
+  album("paper-moon", "Paper Moon", "nova-reign", 2025, "Single", "Pop"),
+  album("glass-horizons-remixes", "Glass Horizons: The Remixes", "nova-reign", 2026, "Compilation", "Pop"),
+  album("night-ferry", "Night Ferry", "paper-lanterns", 2022, "Album", "Indie"),
+  album("small-fires", "Small Fires", "paper-lanterns", 2024, "EP", "Indie"),
+  album("full-moon-ledger", "Full Moon Ledger", "kairo-blaze", 2021, "Album", "Hip-Hop"),
+  album("side-door", "Side Door", "kairo-blaze", 2025, "Single", "Hip-Hop"),
+  album("bonus-level", "Bonus Level", "midnight-arcade", 2022, "Album", "Dance/Electronic"),
+  album("game-over-again", "Game Over Again", "midnight-arcade", 2026, "Single", "Dance/Electronic"),
+  album("arcade-classics", "Arcade Classics", "midnight-arcade", 2025, "Compilation", "Dance/Electronic"),
+  album("velvet-hours", "Velvet Hours", "ivy-marlowe", 2023, "Album", "R&B"),
+  album("soft-landing", "Soft Landing", "ivy-marlowe", 2025, "Single", "Pop"),
+  album("garage-hymnal", "Garage Hymnal", "static-bloom", 2021, "Album", "Rock"),
+  album("dead-air", "Dead Air", "static-bloom", 2025, "EP", "Rock"),
+  album("daybreak-protocol", "Daybreak Protocol", "lumen-kid", 2023, "Album", "Dance/Electronic"),
+  album("halo-effect", "Halo Effect", "lumen-kid", 2025, "Single", "Pop"),
+  album("verano-eterno", "Verano Eterno", "sol-rivera", 2022, "Album", "Latin"),
+  album("sin-frenos", "Sin Frenos", "sol-rivera", 2026, "Single", "Latin"),
+  album("river-road", "River Road", "ash-and-ember", 2025, "Album", "Folk & Acoustic"),
+  album("cabin-sessions", "Cabin Sessions", "ash-and-ember", 2021, "EP", "Folk & Acoustic"),
+  album("blue-hour-diaries", "Blue Hour Diaries", "juno-vale", 2024, "Album", "R&B"),
+  album("afterparty-alone", "Afterparty Alone", "juno-vale", 2025, "Single", "R&B"),
+  album("salt-and-iron", "Salt and Iron", "iron-tides", 2022, "Album", "Metal"),
+  album("black-flag-sunrise", "Black Flag Sunrise", "iron-tides", 2025, "Single", "Metal"),
+  album("dream-static", "Dream Static", "velvet-static", 2023, "Album", "Indie"),
+  album("cassette-heart", "Cassette Heart", "velvet-static", 2026, "Single", "Indie"),
+  album("rooftop-sermons", "Rooftop Sermons", "mc-halcyon", 2023, "Album", "Hip-Hop"),
+  album("no-sleep-tonight", "No Sleep Tonight", "mc-halcyon", 2026, "Single", "Hip-Hop"),
+  album("spring-nocturnes", "Spring Nocturnes", "aurora-keys", 2024, "Album", "Classical"),
+  album("lullaby-no-3", "Lullaby No. 3", "aurora-keys", 2025, "Single", "Classical"),
+  album("sand-and-brass", "Sand and Brass", "dune-collective", 2022, "Album", "Jazz"),
+  album("oasis-live", "Oasis Live", "dune-collective", 2025, "EP", "Jazz"),
+  album("tidal-lights", "Tidal Lights", "neon-harbor", 2024, "Album", "Dance/Electronic"),
+  album("red-buoy", "Red Buoy", "neon-harbor", 2025, "Single", "Dance/Electronic"),
 ];
 
 const slug = (text: string) =>
@@ -230,6 +267,90 @@ export const tracks: Track[] = [
   track("Blue Mirage", "blue-mirage", "7:13"),
   track("Late Set at the Oasis", "blue-mirage", "6:08"),
   track("Portside", "portside", "3:30"),
+  track("Neon Summer", "neon-summer", "3:18"),
+  track("Overtime Hearts", "neon-summer", "2:56"),
+  track("Lights Out Lullaby", "neon-summer", "3:47"),
+  track("Paper Moon", "paper-moon", "3:02"),
+  track("Golden Static (Club Mix)", "glass-horizons-remixes", "5:21", { feat: ["lumen-kid"] }),
+  track("Orbit (Acoustic)", "glass-horizons-remixes", "3:09"),
+  track("Night Ferry", "night-ferry", "4:21"),
+  track("Low Tide Letters", "night-ferry", "3:44"),
+  track("Second Story Window", "night-ferry", "3:12"),
+  track("Small Fires", "small-fires", "3:33"),
+  track("Porchlight", "small-fires", "4:05", { feat: ["ash-and-ember"] }),
+  track("Full Moon Ledger", "full-moon-ledger", "3:01", { explicit: true }),
+  track("Uptown Static", "full-moon-ledger", "2:47", { explicit: true }),
+  track("Receipts", "full-moon-ledger", "3:15", { explicit: true, feat: ["mc-halcyon"] }),
+  track("Brick by Brick", "full-moon-ledger", "3:38"),
+  track("Side Door", "side-door", "2:39", { explicit: true }),
+  track("Bonus Level", "bonus-level", "4:12"),
+  track("Continue Screen", "bonus-level", "3:49"),
+  track("Pixel Rain", "bonus-level", "5:03"),
+  track("Cheat Code", "bonus-level", "3:27"),
+  track("Game Over Again", "game-over-again", "3:58"),
+  track("Insert Coin (Extended)", "arcade-classics", "6:14"),
+  track("High Score (Live)", "arcade-classics", "5:32"),
+  track("Velvet Hours", "velvet-hours", "3:41"),
+  track("Second Cup", "velvet-hours", "3:06", { feat: ["sol-rivera"] }),
+  track("Sunday Best", "velvet-hours", "4:01", { feat: ["juno-vale"] }),
+  track("Soft Landing", "soft-landing", "2:58"),
+  track("Garage Hymnal", "garage-hymnal", "3:52"),
+  track("Broken Metronome", "garage-hymnal", "3:19", { feat: ["iron-tides"] }),
+  track("Last Call Anthem", "garage-hymnal", "4:26", { explicit: true }),
+  track("Dead Air", "dead-air", "3:11"),
+  track("Loud Enough", "dead-air", "2:44"),
+  track("Daybreak Protocol", "daybreak-protocol", "4:37"),
+  track("Glass Elevator", "daybreak-protocol", "3:53", { feat: ["neon-harbor"] }),
+  track("Slow Strobe", "daybreak-protocol", "5:08"),
+  track("Halo Effect", "halo-effect", "3:14"),
+  track("Verano Eterno", "verano-eterno", "3:26"),
+  track("Luna de Papel", "verano-eterno", "3:03"),
+  track("Baila Conmigo", "verano-eterno", "2:54", { feat: ["nova-reign"] }),
+  track("Sal y Limón", "verano-eterno", "3:17"),
+  track("Sin Frenos", "sin-frenos", "2:49", { explicit: true }),
+  track("River Road", "river-road", "4:09"),
+  track("Kindling", "river-road", "3:31", { feat: ["velvet-static"] }),
+  track("Old Porch Swing", "river-road", "3:56"),
+  track("Winter Wheat", "river-road", "4:18"),
+  track("Cabin Song", "cabin-sessions", "3:22"),
+  track("Lantern Hill", "cabin-sessions", "3:48"),
+  track("Blue Hour", "blue-hour-diaries", "3:35"),
+  track("Late Checkout", "blue-hour-diaries", "3:12", { feat: ["kairo-blaze"], explicit: true }),
+  track("Unread Messages", "blue-hour-diaries", "3:44"),
+  track("Silk Road Home", "blue-hour-diaries", "4:02"),
+  track("Afterparty Alone", "afterparty-alone", "3:08"),
+  track("Salt and Iron", "salt-and-iron", "5:12", { explicit: true }),
+  track("Riptide Choir", "salt-and-iron", "6:21", { feat: ["static-bloom"] }),
+  track("Anchor Down", "salt-and-iron", "4:47"),
+  track("Hull Breach", "salt-and-iron", "4:03", { explicit: true }),
+  track("Black Flag Sunrise", "black-flag-sunrise", "5:33"),
+  track("Dream Static", "dream-static", "3:29"),
+  track("Paper Walls", "dream-static", "3:07", { feat: ["paper-lanterns"] }),
+  track("Slow Motion Summer", "dream-static", "4:11", { feat: ["dune-collective"] }),
+  track("Faded Denim", "dream-static", "2:58"),
+  track("Cassette Heart", "cassette-heart", "3:16"),
+  track("Rooftop Sermons", "rooftop-sermons", "3:24", { explicit: true }),
+  track("Bodega Gospel", "rooftop-sermons", "2:59", { explicit: true, feat: ["ivy-marlowe"] }),
+  track("Night Bus Verses", "rooftop-sermons", "3:36", { explicit: true }),
+  track("Clean Slate", "rooftop-sermons", "3:13"),
+  track("No Sleep Tonight", "no-sleep-tonight", "2:51", { explicit: true }),
+  track("Nocturne for Thaw", "spring-nocturnes", "5:44"),
+  track("Etude in Rain", "spring-nocturnes", "3:58"),
+  track("Prelude to April", "spring-nocturnes", "4:26"),
+  track("Waltz of Small Hours", "spring-nocturnes", "6:03"),
+  track("Lullaby No. 3", "lullaby-no-3", "3:37"),
+  track("Sand and Brass", "sand-and-brass", "6:42"),
+  track("Caravan Waltz", "sand-and-brass", "5:18", { feat: ["aurora-keys"] }),
+  track("Midnight Souk", "sand-and-brass", "7:01"),
+  track("Slow Camel Blues", "sand-and-brass", "5:55"),
+  track("Oasis Live Intro", "oasis-live", "2:13"),
+  track("Heat Haze", "oasis-live", "6:29"),
+  track("Tidal Lights", "tidal-lights", "4:02"),
+  track("Dock Party", "tidal-lights", "3:47", { feat: ["midnight-arcade"] }),
+  track("Fog Machine", "tidal-lights", "5:16"),
+  track("Harbor Master", "tidal-lights", "4:33"),
+  track("Lighthouse Drop", "tidal-lights", "3:59"),
+  track("Red Buoy", "red-buoy", "3:42"),
 ];
 
 export const artistById = (id: string) => artists.find((a) => a.id === id);
@@ -336,6 +457,165 @@ export const categories: Category[] = [
   { id: "metal", name: "Metal", color: "#777777" },
 ];
 
+export const playlistById = (id: string) => playlists.find((p) => p.id === id);
+
+/** Editorial playlists have a save count. Personal ones don't. */
+export function playlistSaves(p: Playlist): number | null {
+  if (p.owner !== "Spotify") return null;
+  return 40_000 + (hashSeed(p.id) % 7_000_000);
+}
+
+const DATE_ADDED_LABELS = [
+  "6 hours ago",
+  "2 days ago",
+  "5 days ago",
+  "1 week ago",
+  "3 weeks ago",
+  "Mar 4, 2026",
+  "Jan 18, 2026",
+  "Nov 2, 2025",
+];
+
+/** A stable mock "Date added" for a track within a playlist. */
+export const trackDateAdded = (collectionId: string, trackId: string) =>
+  DATE_ADDED_LABELS[
+    hashSeed(`${collectionId}:${trackId}`) % DATE_ADDED_LABELS.length
+  ];
+
+// Stops at October so that no 2026 album is dated in the future.
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+];
+
+const RECORD_LABELS = [
+  "Harbor Lane Records",
+  "Blue Room Music",
+  "Northlight Recordings",
+  "Paper Crane Audio",
+];
+
+/** The stable mock release details shown under an album's tracklist. */
+export function albumRelease(album: Album) {
+  const hash = hashSeed(album.id);
+  const label = RECORD_LABELS[hash % RECORD_LABELS.length];
+  return {
+    date: `${MONTHS[hash % MONTHS.length]} ${(hash % 28) + 1}, ${album.year}`,
+    copyright: `© ${album.year} ${label}`,
+    phonogram: `℗ ${album.year} ${label}`,
+  };
+}
+
+const POPULAR_TRACK_COUNT = 10;
+
+/** A stable mock all-time play count for a song. */
+export const trackPlays = (t: Track) => 1_000_000 + (hashSeed(t.id) % 1_900_000_000);
+
+/** An artist's songs, most played first, including guest spots. */
+export function artistPopularTracks(artistId: string): Track[] {
+  return tracks
+    .filter((t) => t.artistIds.includes(artistId))
+    .sort((a, b) => trackPlays(b) - trackPlays(a))
+    .slice(0, POPULAR_TRACK_COUNT);
+}
+
+/** An artist's own releases, newest first. */
+export function artistAlbums(artistId: string): Album[] {
+  return albums
+    .filter((a) => a.artistId === artistId)
+    .sort((a, b) => b.year - a.year);
+}
+
+/** Other artists' releases this artist is a guest on. */
+export function artistAppearsOn(artistId: string): Album[] {
+  return albums.filter(
+    (a) =>
+      a.artistId !== artistId &&
+      tracks.some((t) => t.albumId === a.id && t.artistIds.includes(artistId))
+  );
+}
+
+/** Playlists containing at least one of this artist's songs. */
+export function playlistsFeaturing(artistId: string): Playlist[] {
+  const songIds = new Set(
+    tracks.filter((t) => t.artistIds.includes(artistId)).map((t) => t.id)
+  );
+  return playlists.filter((p) => p.trackIds.some((id) => songIds.has(id)));
+}
+
+/** Playlists in the artist's genres that aren't already in "Featuring". */
+export function artistDiscoveredOn(artistId: string): Playlist[] {
+  const genres = artistById(artistId)?.genres ?? [];
+  const featuring = playlistsFeaturing(artistId);
+  return playlists.filter(
+    (p) =>
+      !featuring.includes(p) && p.tags.some((tag) => genres.includes(tag))
+  );
+}
+
+const FANS_ALSO_LIKE_COUNT = 8;
+
+/** Artists sharing a genre first, then a stable pick of everyone else. */
+export function artistFansAlsoLike(artistId: string): Artist[] {
+  const genres = artistById(artistId)?.genres ?? [];
+  const sharesGenre = (a: Artist) => a.genres.some((g) => genres.includes(g));
+  const order = (a: Artist) => hashSeed(`${artistId}:${a.id}`);
+  return artists
+    .filter((a) => a.id !== artistId)
+    .sort(
+      (a, b) =>
+        Number(sharesGenre(b)) - Number(sharesGenre(a)) || order(a) - order(b)
+    )
+    .slice(0, FANS_ALSO_LIKE_COUNT);
+}
+
+/** The artist's newest release, shown as their "Artist pick". */
+export function artistPick(artistId: string) {
+  const newest = artistAlbums(artistId)[0];
+  if (!newest) return null;
+  return {
+    title: newest.title,
+    typeLabel: newest.kind,
+    coverSeed: newest.id,
+    href: `/album/${newest.id}`,
+  };
+}
+
+/** Stable mock audience numbers. Only some artists are ranked. */
+export function artistStats(a: Artist) {
+  const hash = hashSeed(a.id);
+  return {
+    monthlyListeners: 200_000 + (hash % 60_000_000),
+    followers: 50_000 + (hash % 12_000_000),
+    rank: hash % 3 === 0 ? (hash % 400) + 1 : null,
+  };
+}
+
+export function artistBio(a: Artist): string[] {
+  const releases = artistAlbums(a.id);
+  const earliest = releases[releases.length - 1];
+  const latest = releases[0];
+  const genre = a.genres[0] ?? "music";
+  return [
+    `${a.name} has been a fixture of the ${genre} world since ${earliest?.year ?? "their first release"}, building a devoted following with a sound that is instantly recognisable and hard to pin down.`,
+    `Across ${releases.length} ${releases.length === 1 ? "release" : "releases"}, from ${earliest?.title} to ${latest?.title}, ${a.name} keeps finding new corners of ${genre} to explore, with collaborators and fans along for the ride.`,
+  ];
+}
+
+/** Artists link to their page. Other credited names fall back to search. */
+export function artistHrefByName(name: string): string {
+  const artist = artists.find((a) => a.name === name);
+  return artist ? `/artist/${artist.id}` : searchHref(name);
+}
+
 export const initialLikedTrackIds = ids(
   "Golden Static",
   "Slow Parade",
@@ -382,7 +662,7 @@ const trackToPlayable = (t: Track): Playable => ({
   title: t.title,
   subtitle: trackArtistNames(t),
   artists: t.artistIds.map((id) => artistById(id)?.name ?? ""),
-  albumTitle: albumById(t.albumId)?.title,
+  albumId: t.albumId,
   coverSeed: t.albumId,
   durationSec: t.durationSec,
   explicit: t.explicit,
@@ -403,9 +683,7 @@ function playablesFor(entity: Entity): Playable[] {
     case "album":
       return tracksToPlayables(tracks.filter((t) => t.albumId === entity.id));
     case "artist":
-      return tracksToPlayables(
-        tracks.filter((t) => t.artistIds.includes(entity.id))
-      );
+      return tracksToPlayables(artistPopularTracks(entity.id));
     case "playlist":
       return playablesFromTrackIds(entity.trackIds);
     case "show":
@@ -458,6 +736,7 @@ export function toCard(
         subtitle: trackArtistNames(entity),
         coverSeed: entity.albumId,
         explicit: entity.explicit,
+        href: `/album/${entity.albumId}`,
         playables,
       };
     case "album":
@@ -467,6 +746,7 @@ export function toCard(
         title: entity.title,
         subtitle: artistById(entity.artistId)?.name ?? "",
         coverSeed: entity.id,
+        href: `/album/${entity.id}`,
         playables,
       };
     case "artist":
@@ -478,6 +758,7 @@ export function toCard(
         coverSeed: entity.id,
         shape: "circle",
         variant: "person",
+        href: `/artist/${entity.id}`,
         playables,
       };
     case "playlist":
@@ -491,6 +772,7 @@ export function toCard(
             : entity.description,
         coverSeed: entity.id,
         label: entity.owner === "Spotify" ? entity.title : undefined,
+        href: `/playlist/${entity.id}`,
         playables,
       };
     case "show":

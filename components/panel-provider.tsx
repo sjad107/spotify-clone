@@ -10,8 +10,22 @@ import {
   useState,
 } from "react";
 import { searchHref } from "@/lib/format";
+import { libraryEntities } from "@/lib/mock-data";
 
 type PanelView = "now-playing" | "queue";
+export type TracklistView = "list" | "compact";
+export type ResizeSource = "drag" | "keyboard";
+
+export const LIBRARY_COMPACT_WIDTH = 72;
+export const LIBRARY_MIN_WIDTH = 280;
+export const LIBRARY_MAX_WIDTH = 420;
+// A drag that ends below this collapses the library. Above it, the library
+// stops at its minimum width. Measured to be between 170 and 202 on
+// open.spotify.com; this is the midpoint of the compact and minimum widths.
+const LIBRARY_SNAP_WIDTH = 176;
+
+const clampLibraryWidth = (width: number) =>
+  Math.min(LIBRARY_MAX_WIDTH, Math.max(LIBRARY_MIN_WIDTH, width));
 
 interface PanelValue {
   view: PanelView;
@@ -32,13 +46,20 @@ interface PanelValue {
   closeQueue: () => void;
   toggleFollow: (name: string) => void;
   copyLink: (title: string) => void;
+  /** Null until resized, which leaves the width to the responsive defaults. */
+  libraryWidth: number | null;
+  libraryCompact: boolean;
+  setLibraryCompact: (compact: boolean) => void;
+  resizeLibrary: (candidate: number, source: ResizeSource) => void;
+  tracklistView: TracklistView;
+  setTracklistView: (view: TracklistView) => void;
 }
 
 const PanelContext = createContext<PanelValue | null>(null);
 
 const TOAST_MS = 2500;
 
-/** State for the right-hand panel, shared with the player bar. */
+/** Layout state for the side panels and the tracklist view. */
 export function PanelProvider({ children }: { children: React.ReactNode }) {
   const [view, setView] = useState<PanelView>("now-playing");
   const [collapsed, setCollapsedState] = useState(false);
@@ -47,9 +68,29 @@ export function PanelProvider({ children }: { children: React.ReactNode }) {
   const [creditsOpen, setCreditsOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [followedNames, setFollowedNames] = useState<ReadonlySet<string>>(
-    () => new Set()
+    () =>
+      new Set(libraryEntities.flatMap((e) => (e.type === "artist" ? [e.name] : [])))
   );
   const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  const [libraryWidth, setLibraryWidth] = useState<number | null>(null);
+  const [libraryCompact, setLibraryCompact] = useState(false);
+  const [tracklistView, setTracklistView] = useState<TracklistView>("list");
+
+  const resizeLibrary = useCallback(
+    (candidate: number, source: ResizeSource) => {
+      const collapse =
+        source === "drag"
+          ? candidate < LIBRARY_SNAP_WIDTH
+          : libraryCompact
+            ? candidate <= LIBRARY_COMPACT_WIDTH
+            : candidate < LIBRARY_MIN_WIDTH;
+      setLibraryCompact(collapse);
+      // Reaching the bar by resizing passes through the minimum width, so
+      // that is what the Open button comes back to.
+      setLibraryWidth(collapse ? LIBRARY_MIN_WIDTH : clampLibraryWidth(candidate));
+    },
+    [libraryCompact]
+  );
 
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
@@ -115,6 +156,12 @@ export function PanelProvider({ children }: { children: React.ReactNode }) {
       closeQueue,
       toggleFollow,
       copyLink,
+      libraryWidth,
+      libraryCompact,
+      setLibraryCompact,
+      resizeLibrary,
+      tracklistView,
+      setTracklistView,
     }),
     [
       closeQueue,
@@ -123,12 +170,16 @@ export function PanelProvider({ children }: { children: React.ReactNode }) {
       creditsOpen,
       expanded,
       followedNames,
+      libraryCompact,
+      libraryWidth,
+      resizeLibrary,
       setCollapsed,
       slide,
       toast,
       toggleFollow,
       toggleNowPlaying,
       toggleQueue,
+      tracklistView,
       view,
     ]
   );

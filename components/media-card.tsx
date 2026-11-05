@@ -6,6 +6,7 @@ import CoverArt from "./cover-art";
 import ExplicitBadge from "./explicit-badge";
 import PlayButton from "./play-button";
 import { usePlayer } from "./player-provider";
+import StretchedAction from "./stretched-action";
 
 interface MediaCardProps {
   item: CardItem;
@@ -47,10 +48,8 @@ export default function MediaCard({ item, className }: MediaCardProps) {
         )}
       </div>
       {canPlay ? (
-        // Stretched over the whole card. There are no detail pages yet, so
-        // clicking a card plays it.
-        <button
-          type="button"
+        <StretchedAction
+          href={item.href}
           onClick={onToggle}
           className={cn(
             "block w-full truncate text-left text-base after:absolute after:inset-0 after:rounded-lg",
@@ -58,7 +57,7 @@ export default function MediaCard({ item, className }: MediaCardProps) {
           )}
         >
           {item.title}
-        </button>
+        </StretchedAction>
       ) : (
         <div className="truncate text-base text-white">{item.title}</div>
       )}

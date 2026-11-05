@@ -1,13 +1,13 @@
 "use client";
 
 import { Fragment } from "react";
-import Link from "next/link";
-import { searchHref } from "@/lib/format";
 import type { Playable } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import ArtistLink from "./artist-link";
 import CoverArt from "./cover-art";
 import ExplicitBadge from "./explicit-badge";
 import { PauseGlyph, PlayGlyph } from "./play-button";
+import SongLink from "./song-link";
 import TrackMenu from "./track-menu";
 
 interface QueueRowProps {
@@ -49,19 +49,17 @@ export default function QueueRow({
             active ? "text-spotify-green" : "text-white"
           )}
         >
-          {item.title}
+          <SongLink title={item.title} albumId={item.albumId} />
         </div>
         <div className="mt-0.5 truncate text-sm leading-snug text-spotify-subdued">
           {item.explicit && <ExplicitBadge />}
           {item.artists.map((name, index) => (
             <Fragment key={name}>
               {index > 0 && ", "}
-              <Link
-                href={searchHref(name)}
+              <ArtistLink
+                name={name}
                 className="hover:text-white hover:underline"
-              >
-                {name}
-              </Link>
+              />
             </Fragment>
           ))}
         </div>

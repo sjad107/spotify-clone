@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import CreditsList from "./credits-list";
 import { usePanel } from "./panel-provider";
 import { usePlayer } from "./player-provider";
+import SongLink from "./song-link";
 
 export default function CreditsDialog() {
   const { current } = usePlayer();
@@ -30,7 +31,7 @@ export default function CreditsDialog() {
           {current && (
             <>
               <p className="mb-3 truncate text-base font-bold">
-                {current.title}
+                <SongLink title={current.title} albumId={current.albumId} />
               </p>
               <CreditsList credits={current.credits} />
             </>

@@ -14,6 +14,7 @@ import {
   initialQueue,
   initialQueueSource,
   initialQueueSourceName,
+  libraryEntities,
   type Playable,
 } from "@/lib/mock-data";
 
@@ -32,6 +33,9 @@ interface PlayerValue {
   volume: number;
   muted: boolean;
   likedIds: ReadonlySet<string>;
+  /** Playlists and albums in the library, by card id like "album:portside". */
+  savedCollectionIds: ReadonlySet<string>;
+  toggleSavedCollection: (cardId: string) => void;
   play: (
     sourceId: string,
     items: Playable[],
@@ -96,6 +100,17 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [muted, setMuted] = useState(false);
   const [likedIds, setLikedIds] = useState<ReadonlySet<string>>(
     () => new Set(initialLikedTrackIds)
+  );
+
+  const [savedCollectionIds, setSavedCollectionIds] = useState<
+    ReadonlySet<string>
+  >(
+    () =>
+      new Set(
+        libraryEntities
+          .filter((e) => e.type === "playlist" || e.type === "album")
+          .map((e) => `${e.type}:${e.id}`)
+      )
   );
 
   const current = queue[index] ?? null;
@@ -225,6 +240,13 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       volume,
       muted,
       likedIds,
+      savedCollectionIds,
+      toggleSavedCollection: (cardId) =>
+        setSavedCollectionIds((previousIds) => {
+          const updated = new Set(previousIds);
+          if (!updated.delete(cardId)) updated.add(cardId);
+          return updated;
+        }),
       play,
       toggleSource,
       togglePlay,
@@ -260,6 +282,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       play,
       previous,
       repeat,
+      savedCollectionIds,
       shuffle,
       skipTo,
       sourceId,

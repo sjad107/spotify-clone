@@ -20,7 +20,7 @@ interface PlayButtonProps {
   playing: boolean;
   label: string;
   onClick: () => void;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
   className?: string;
 }
 
@@ -40,11 +40,11 @@ export default function PlayButton({
       onClick={onClick}
       className={cn(
         "flex shrink-0 items-center justify-center rounded-full bg-spotify-green text-black shadow-[0_8px_8px_rgba(0,0,0,0.3)] transition hover:scale-105 hover:bg-spotify-green-hover active:scale-95",
-        size === "md" ? "h-12 w-12" : "h-8 w-8",
+        { sm: "h-8 w-8", md: "h-12 w-12", lg: "h-14 w-14" }[size],
         className
       )}
     >
-      <Glyph className={size === "md" ? "h-6 w-6" : "h-4 w-4"} />
+      <Glyph className={size === "sm" ? "h-4 w-4" : "h-6 w-6"} />
     </button>
   );
 }

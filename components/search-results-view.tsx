@@ -19,6 +19,7 @@ import NavBarSearch from "./nav-bar-search";
 import PlayButton from "./play-button";
 import { usePlayer } from "./player-provider";
 import Shelf from "./shelf";
+import StretchedAction from "./stretched-action";
 import SiteFooter from "./site-footer";
 import TrackRow, { TRACK_TABLE_COLUMNS } from "./track-row";
 
@@ -184,8 +185,8 @@ function TopResultCard({ entity }: { entity: Entity }) {
         variant={card.variant}
         className="mb-5 !w-[92px] shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
       />
-      <button
-        type="button"
+      <StretchedAction
+        href={card.href}
         onClick={onToggle}
         className={cn(
           "block w-full truncate pb-1 text-left text-[32px] font-bold leading-[39px] after:absolute after:inset-0 after:rounded-lg",
@@ -193,7 +194,7 @@ function TopResultCard({ entity }: { entity: Entity }) {
         )}
       >
         {card.title}
-      </button>
+      </StretchedAction>
       <div className="truncate pr-14 text-sm text-spotify-subdued">
         {topResultSubtitle(entity)}
       </div>

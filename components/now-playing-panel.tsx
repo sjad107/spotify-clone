@@ -6,11 +6,11 @@ import { ShowPanelChevronIcon } from "./icons";
 import NowPlayingView from "./now-playing-view";
 import { usePanel } from "./panel-provider";
 import QueueView from "./queue-view";
+import ResizeHandle from "./resize-handle";
 
 const MIN_WIDTH = 280;
 const MAX_WIDTH = 420;
 const DEFAULT_WIDTH = 390;
-const KEYBOARD_STEP = 10;
 
 const clampWidth = (width: number) =>
   Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, width));
@@ -42,7 +42,17 @@ export default function NowPlayingPanel() {
       )}
       style={{ "--panel-width": `${width}px` } as React.CSSProperties}
     >
-      {!collapsed && <PanelResizer width={width} onChange={setWidth} />}
+      {!collapsed && (
+        <ResizeHandle
+          label="Resize Now Playing view"
+          edge="left"
+          min={MIN_WIDTH}
+          max={MAX_WIDTH}
+          value={width}
+          onResize={(candidate) => setWidth(clampWidth(candidate))}
+          className="hidden xl:flex"
+        />
+      )}
 
       <div className="relative h-full overflow-hidden rounded-lg bg-spotify-base">
         <div
@@ -72,54 +82,5 @@ export default function NowPlayingPanel() {
         </button>
       </div>
     </aside>
-  );
-}
-
-/** Sits over the gap beside the panel. Only available from the xl breakpoint. */
-function PanelResizer({
-  width,
-  onChange,
-}: {
-  width: number;
-  onChange: (width: number) => void;
-}) {
-  const drag = useRef<{ startX: number; startWidth: number } | null>(null);
-
-  return (
-    <div
-      role="separator"
-      aria-label="Resize Now Playing view"
-      aria-orientation="vertical"
-      aria-valuemin={MIN_WIDTH}
-      aria-valuemax={MAX_WIDTH}
-      aria-valuenow={width}
-      tabIndex={0}
-      onPointerDown={(event) => {
-        event.currentTarget.setPointerCapture(event.pointerId);
-        drag.current = { startX: event.clientX, startWidth: width };
-      }}
-      onPointerMove={(event) => {
-        if (!drag.current) return;
-        // The handle is on the panel's left edge, so moving left widens it.
-        const moved = drag.current.startX - event.clientX;
-        onChange(clampWidth(drag.current.startWidth + moved));
-      }}
-      onPointerUp={() => {
-        drag.current = null;
-      }}
-      onPointerCancel={() => {
-        drag.current = null;
-      }}
-      onKeyDown={(event) => {
-        if (event.key === "ArrowLeft") {
-          onChange(clampWidth(width + KEYBOARD_STEP));
-        } else if (event.key === "ArrowRight") {
-          onChange(clampWidth(width - KEYBOARD_STEP));
-        }
-      }}
-      className="group/resizer absolute -left-3 inset-y-0 z-30 hidden w-4 cursor-col-resize touch-none justify-center focus:outline-none xl:flex"
-    >
-      <span className="h-full w-px bg-white/30 opacity-0 transition-opacity group-hover/resizer:opacity-100 group-focus-visible/resizer:opacity-100 group-active/resizer:opacity-100" />
-    </div>
   );
 }

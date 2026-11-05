@@ -16,8 +16,8 @@ import {
   UserRound,
   type LucideIcon,
 } from "lucide-react";
-import { searchHref } from "@/lib/format";
-import type { Playable } from "@/lib/mock-data";
+import { albumHref } from "@/lib/format";
+import { artistHrefByName, type Playable } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { MoreIcon } from "./icons";
 import { usePanel } from "./panel-provider";
@@ -76,9 +76,9 @@ export default function TrackMenu({
     setOpen((value) => !value);
   };
 
-  const goTo = (text: string) => {
+  const goTo = (href: string) => {
     setExpanded(false);
-    router.push(searchHref(text));
+    router.push(href);
   };
 
   const liked = likedIds.has(item.id);
@@ -100,13 +100,13 @@ export default function TrackMenu({
     { label: "Add to queue", Icon: ListEnd, onSelect: () => addToQueue(item) },
     { label: "Exclude from your taste profile", Icon: Ban },
     { label: "Go to song radio", Icon: Radio },
-    { label: "Go to artist", Icon: UserRound, onSelect: () => goTo(artist) },
-    ...(item.albumTitle
+    { label: "Go to artist", Icon: UserRound, onSelect: () => goTo(artistHrefByName(artist)) },
+    ...(item.albumId
       ? [
           {
             label: "Go to album",
             Icon: Disc3,
-            onSelect: () => goTo(item.albumTitle as string),
+            onSelect: () => goTo(albumHref(item.albumId as string)),
           },
         ]
       : []),

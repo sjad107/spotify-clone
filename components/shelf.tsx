@@ -9,6 +9,8 @@ import MediaCard from "./media-card";
 interface ShelfProps {
   title: string;
   items: CardItem[];
+  /** Shown between the title and the cards. */
+  headerExtra?: React.ReactNode;
 }
 
 const CARD_WIDTH = "w-[160px] shrink-0 md:w-[180px] 2xl:w-[195px]";
@@ -17,7 +19,7 @@ const CARD_WIDTH = "w-[160px] shrink-0 md:w-[180px] 2xl:w-[195px]";
  * A titled, horizontally scrolling row of cards. "Show all" expands it into a
  * wrapping grid in place, because there is no dedicated page to link to.
  */
-export default function Shelf({ title, items }: ShelfProps) {
+export default function Shelf({ title, items, headerExtra }: ShelfProps) {
   const rowRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -61,6 +63,8 @@ export default function Shelf({ title, items }: ShelfProps) {
           </button>
         )}
       </div>
+
+      {headerExtra}
 
       {expanded ? (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(180px,1fr))]">

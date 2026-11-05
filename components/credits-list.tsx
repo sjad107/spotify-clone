@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { searchHref } from "@/lib/format";
 import type { Credit } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import ArtistLink from "./artist-link";
 import { usePanel } from "./panel-provider";
 
 function FollowButton({ name }: { name: string }) {
@@ -35,12 +34,10 @@ export default function CreditsList({ credits }: { credits: Credit[] }) {
         >
           <div className="min-w-0">
             {credit.isArtist ? (
-              <Link
-                href={searchHref(credit.name)}
+              <ArtistLink
+                name={credit.name}
                 className="block truncate text-base leading-snug text-white after:absolute after:inset-0 after:rounded-md"
-              >
-                {credit.name}
-              </Link>
+              />
             ) : (
               <div className="truncate text-base leading-snug text-white">
                 {credit.name}

@@ -4,6 +4,7 @@ import {
   artistById,
   categories,
   playlists,
+  playlistsFeaturing,
   profiles,
   shows,
   trackArtistNames,
@@ -131,12 +132,7 @@ export function search(rawQuery: string): SearchResults {
 
   let featuring: SearchResults["featuring"] = null;
   if (top?.type === "artist") {
-    const artistTrackIds = new Set(
-      tracks.filter((t) => t.artistIds.includes(top.id)).map((t) => t.id)
-    );
-    const containing = playlists.filter((p) =>
-      p.trackIds.some((id) => artistTrackIds.has(id))
-    );
+    const containing = playlistsFeaturing(top.id);
     if (containing.length > 0) {
       featuring = { artist: top, playlists: containing };
     }
