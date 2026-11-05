@@ -104,7 +104,11 @@ export interface CardItem {
   playables: Playable[];
 }
 
+/** Owns the mock personal playlists. The UI shows the logged-in name instead. */
 export const currentUser = { name: "Sajjad" };
+
+export const ownerName = (owner: string, userName?: string) =>
+  owner === currentUser.name && userName ? userName : owner;
 
 const artist = (id: string, name: string, ...genres: string[]): Artist => ({
   type: "artist",
@@ -876,6 +880,14 @@ export const homeShelves: HomeShelf[] = [
     kind: "podcasts",
     items: cards(shows.filter((s) => s.kind === "Audiobook")),
   },
+];
+
+/** Logged out, Home keeps only the shelves that aren't personal. */
+export const GUEST_HOME_SHELF_IDS = [
+  "trending-songs",
+  "popular-artists",
+  "popular-albums",
+  "featured-charts",
 ];
 
 export const libraryEntities: Entity[] = [

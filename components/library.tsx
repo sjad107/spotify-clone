@@ -8,6 +8,7 @@ import {
   albums,
   artists,
   libraryEntities,
+  ownerName,
   playablesFromTrackIds,
   playlists,
   toCard,
@@ -17,6 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import CoverArt from "./cover-art";
 import { CollapseLibraryIcon, LibraryIcon, OpenLibraryIcon } from "./icons";
+import { useAuth } from "./auth-provider";
 import { usePanel } from "./panel-provider";
 import { usePlayer } from "./player-provider";
 
@@ -32,10 +34,10 @@ type LibraryFilter = (typeof FILTERS)[number]["id"];
 const LIKED_SOURCE = "liked-songs";
 const LIKED_HREF = "/collection/tracks";
 
-function librarySubtitle(entity: Entity): string {
+function librarySubtitle(entity: Entity, userName?: string): string {
   switch (entity.type) {
     case "playlist":
-      return `Playlist • ${entity.owner}`;
+      return `Playlist • ${ownerName(entity.owner, userName)}`;
     case "album":
       return `Album • ${toCard(entity).subtitle}`;
     case "artist":
@@ -63,6 +65,7 @@ export function LikedSongsArt({ className }: { className?: string }) {
 
 export default function Library({ compact }: { compact: boolean }) {
   const pathname = usePathname();
+  const { user } = useAuth();
   const { sourceId, isPlaying, toggleSource, likedIds, savedCollectionIds } =
     usePlayer();
   const { setLibraryCompact, followedNames } = usePanel();
@@ -85,14 +88,17 @@ export default function Library({ compact }: { compact: boolean }) {
     );
     return [...newlySaved, ...libraryEntities.filter(isSaved)]
       .filter((entity) => !filter || entity.type === filter)
-      .map((entity) => ({ card: toCard(entity), subtitle: librarySubtitle(entity) }))
+      .map((entity) => ({
+        card: toCard(entity),
+        subtitle: librarySubtitle(entity, user?.name),
+      }))
       .filter(
         ({ card, subtitle }) =>
           !needle ||
           card.title.toLowerCase().includes(needle) ||
           subtitle.toLowerCase().includes(needle)
       );
-  }, [filter, followedNames, savedCollectionIds, text]);
+  }, [filter, followedNames, savedCollectionIds, text, user?.name]);
 
   const showLiked =
     (!filter || filter === "playlist") &&

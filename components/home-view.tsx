@@ -3,11 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { coverColor } from "@/lib/cover";
 import {
+  GUEST_HOME_SHELF_IDS,
   homeQuickAccess,
   homeShelves,
   type CardItem,
 } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { useAuth } from "./auth-provider";
 import CoverArt from "./cover-art";
 import FilterChips from "./filter-chips";
 import PlayButton from "./play-button";
@@ -15,6 +17,9 @@ import { usePlayer } from "./player-provider";
 import Shelf from "./shelf";
 import StretchedAction from "./stretched-action";
 import SiteFooter from "./site-footer";
+
+const MADE_FOR_YOU_SHELF_ID = "made-for-you";
+const GUEST_TINT = "#2a2a2a";
 
 const FILTERS = [
   { id: "all", label: "All" },
@@ -25,6 +30,7 @@ const FILTERS = [
 type HomeFilter = (typeof FILTERS)[number]["id"];
 
 export default function HomeView() {
+  const { user } = useAuth();
   const [filter, setFilter] = useState<HomeFilter>("all");
   const [hoveredSeed, setHoveredSeed] = useState<string | null>(null);
   const [isStuck, setIsStuck] = useState(false);
@@ -44,10 +50,20 @@ export default function HomeView() {
 
   const quickAccess =
     filter === "podcasts" ? homeQuickAccess.podcasts : homeQuickAccess.music;
-  const shelves = homeShelves.filter(
-    (shelf) => filter === "all" || shelf.kind === filter
-  );
-  const tint = coverColor(hoveredSeed ?? quickAccess[0].coverSeed);
+  const shelves = homeShelves
+    .filter((shelf) =>
+      user
+        ? filter === "all" || shelf.kind === filter
+        : GUEST_HOME_SHELF_IDS.includes(shelf.id)
+    )
+    .map((shelf) =>
+      shelf.id === MADE_FOR_YOU_SHELF_ID && user
+        ? { ...shelf, title: `Made For ${user.name}` }
+        : shelf
+    );
+  const tint = user
+    ? coverColor(hoveredSeed ?? quickAccess[0].coverSeed)
+    : GUEST_TINT;
 
   return (
     <div className="relative min-h-full">
@@ -61,34 +77,38 @@ export default function HomeView() {
       />
       <div ref={sentinelRef} aria-hidden="true" className="absolute top-0 h-px w-full" />
 
-      <div
-        className="sticky top-0 z-30 px-4 py-3 transition-colors duration-300 md:px-10"
-        style={
-          isStuck
-            ? {
-                backgroundColor: tint,
-                backgroundImage:
-                  "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6))",
-              }
-            : undefined
-        }
-      >
-        <FilterChips options={FILTERS} value={filter} onChange={setFilter} />
-      </div>
-
-      <div className="relative z-10 px-4 md:px-10">
+      {user && (
         <div
-          className="mb-8 mt-2 grid grid-cols-2 gap-2 [@container_(min-width:700px)]:grid-cols-4"
-          onMouseLeave={() => setHoveredSeed(null)}
+          className="sticky top-0 z-30 px-4 py-3 transition-colors duration-300 md:px-10"
+          style={
+            isStuck
+              ? {
+                  backgroundColor: tint,
+                  backgroundImage:
+                    "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6))",
+                }
+              : undefined
+          }
         >
-          {quickAccess.map((item) => (
-            <QuickAccessTile
-              key={item.id}
-              item={item}
-              onHover={() => setHoveredSeed(item.coverSeed)}
-            />
-          ))}
+          <FilterChips options={FILTERS} value={filter} onChange={setFilter} />
         </div>
+      )}
+
+      <div className={cn("relative z-10 px-4 md:px-10", !user && "pt-6")}>
+        {user && (
+          <div
+            className="mb-8 mt-2 grid grid-cols-2 gap-2 [@container_(min-width:700px)]:grid-cols-4"
+            onMouseLeave={() => setHoveredSeed(null)}
+          >
+            {quickAccess.map((item) => (
+              <QuickAccessTile
+                key={item.id}
+                item={item}
+                onHover={() => setHoveredSeed(item.coverSeed)}
+              />
+            ))}
+          </div>
+        )}
 
         {shelves.map((shelf) => (
           <Shelf key={shelf.id} title={shelf.title} items={shelf.items} />

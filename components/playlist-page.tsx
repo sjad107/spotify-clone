@@ -3,12 +3,14 @@
 import { useMemo } from "react";
 import { coverColor } from "@/lib/cover";
 import {
+  ownerName,
   playlistById,
   playlistSaves,
   toCard,
   trackById,
   type Track,
 } from "@/lib/mock-data";
+import { useAuth } from "./auth-provider";
 import CollectionView from "./collection-view";
 import CoverArt from "./cover-art";
 import { usePlayer } from "./player-provider";
@@ -17,6 +19,7 @@ const resolveTracks = (ids: string[]) =>
   ids.map(trackById).filter((t): t is Track => t !== undefined);
 
 export default function PlaylistPage({ playlistId }: { playlistId: string }) {
+  const { user } = useAuth();
   const { savedCollectionIds, toggleSavedCollection } = usePlayer();
   const playlist = playlistById(playlistId);
   const tracks = useMemo(
@@ -46,7 +49,9 @@ export default function PlaylistPage({ playlistId }: { playlistId: string }) {
             variant="person"
             className="mr-1 !w-6"
           />
-          <span className="font-bold text-white">{playlist.owner}</span>
+          <span className="font-bold text-white">
+            {ownerName(playlist.owner, user?.name)}
+          </span>
           {saves !== null && (
             <span>• {saves.toLocaleString("en-US")} saves</span>
           )}

@@ -11,6 +11,8 @@ import {
 } from "react";
 import { searchHref } from "@/lib/format";
 import { libraryEntities } from "@/lib/mock-data";
+import { useAuth } from "./auth-provider";
+import { useGuestGate } from "./guest-gate";
 
 type PanelView = "now-playing" | "queue";
 export type TracklistView = "list" | "compact";
@@ -61,15 +63,22 @@ const TOAST_MS = 2500;
 
 /** Layout state for the side panels and the tracklist view. */
 export function PanelProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const { promptLogin } = useGuestGate();
   const [view, setView] = useState<PanelView>("now-playing");
-  const [collapsed, setCollapsedState] = useState(false);
+  // Guests start with the panel minimized, as there's nothing playing.
+  const [collapsed, setCollapsedState] = useState(!user);
   const [slide, setSlide] = useState<PanelValue["slide"]>(null);
   const [expanded, setExpanded] = useState(false);
   const [creditsOpen, setCreditsOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [followedNames, setFollowedNames] = useState<ReadonlySet<string>>(
     () =>
-      new Set(libraryEntities.flatMap((e) => (e.type === "artist" ? [e.name] : [])))
+      new Set(
+        user
+          ? libraryEntities.flatMap((e) => (e.type === "artist" ? [e.name] : []))
+          : []
+      )
   );
   const toastTimer = useRef<ReturnType<typeof setTimeout>>();
   const [libraryWidth, setLibraryWidth] = useState<number | null>(null);
@@ -119,13 +128,23 @@ export function PanelProvider({ children }: { children: React.ReactNode }) {
 
   const closeQueue = useCallback(() => setView("now-playing"), []);
 
-  const toggleFollow = useCallback((name: string) => {
-    setFollowedNames((names) => {
-      const updated = new Set(names);
-      if (!updated.delete(name)) updated.add(name);
-      return updated;
-    });
-  }, []);
+  const toggleFollow = useCallback(
+    (name: string) => {
+      if (!user) {
+        promptLogin({
+          title: "You’re logged out",
+          text: "Log in to follow this artist.",
+        });
+        return;
+      }
+      setFollowedNames((names) => {
+        const updated = new Set(names);
+        if (!updated.delete(name)) updated.add(name);
+        return updated;
+      });
+    },
+    [promptLogin, user]
+  );
 
   const copyLink = useCallback((title: string) => {
     const showToast = (message: string) => {

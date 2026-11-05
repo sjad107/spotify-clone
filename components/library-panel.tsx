@@ -1,7 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useAuth } from "./auth-provider";
 import Box from "./box";
+import GuestLibrary from "./guest-library";
 import Library from "./library";
 import {
   LIBRARY_COMPACT_WIDTH,
@@ -12,6 +14,7 @@ import ResizeHandle from "./resize-handle";
 
 /** The left panel: 280-420px wide, or a 72px bar of covers. */
 export default function LibraryPanel() {
+  const { user } = useAuth();
   const { libraryWidth, libraryCompact, resizeLibrary } = usePanel();
 
   const width = libraryCompact ? LIBRARY_COMPACT_WIDTH : libraryWidth;
@@ -33,7 +36,11 @@ export default function LibraryPanel() {
         onResize={resizeLibrary}
       />
       <Box className="h-full overflow-hidden">
-        <Library compact={libraryCompact} />
+        {user ? (
+          <Library compact={libraryCompact} />
+        ) : (
+          <GuestLibrary compact={libraryCompact} />
+        )}
       </Box>
     </aside>
   );

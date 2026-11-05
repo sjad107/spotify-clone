@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Clock3 } from "lucide-react";
 import {
+  ownerName,
   toCard,
   trackArtistNames,
   type Entity,
@@ -10,6 +11,7 @@ import {
 } from "@/lib/mock-data";
 import { hasResults, search, type SearchResults } from "@/lib/search";
 import { cn } from "@/lib/utils";
+import { useAuth } from "./auth-provider";
 import CategoryTile from "./category-tile";
 import CoverArt from "./cover-art";
 import ExplicitBadge from "./explicit-badge";
@@ -39,8 +41,17 @@ type SearchFilter = (typeof FILTERS)[number]["id"];
 
 const TOP_SONG_COUNT = 4;
 
-const cards = (entities: Entity[]) =>
-  entities.map((entity) => toCard(entity, { playlistSubtitle: "owner" }));
+/** Cards for the results, showing the logged-in name on personal playlists. */
+function useCards() {
+  const { user } = useAuth();
+  return (entities: Entity[]) =>
+    entities.map((entity) => {
+      const card = toCard(entity, { playlistSubtitle: "owner" });
+      return entity.type === "playlist"
+        ? { ...card, subtitle: `By ${ownerName(entity.owner, user?.name)}` }
+        : card;
+    });
+}
 
 export default function SearchResultsView({ query }: { query: string }) {
   const [filter, setFilter] = useState<SearchFilter>("all");
@@ -93,6 +104,7 @@ function AllResults({
   results: SearchResults;
   query: string;
 }) {
+  const cards = useCards();
   const topSongs = results.tracks.slice(0, TOP_SONG_COUNT);
 
   return (
@@ -249,6 +261,7 @@ function SongsTable({ tracks, query }: { tracks: Track[]; query: string }) {
 }
 
 function CardGrid({ entities, query }: { entities: Entity[]; query: string }) {
+  const cards = useCards();
   if (entities.length === 0) return <NoResults query={query} />;
 
   return (

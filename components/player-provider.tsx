@@ -17,6 +17,8 @@ import {
   libraryEntities,
   type Playable,
 } from "@/lib/mock-data";
+import { useAuth } from "./auth-provider";
+import { useGuestGate } from "./guest-gate";
 
 type RepeatMode = "off" | "all" | "one";
 
@@ -87,11 +89,16 @@ function shuffled<T>(items: T[]): T[] {
  * that turning shuffle off can restore it.
  */
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
-  const [queue, setQueue] = useState<Playable[]>(initialQueue);
-  const unshuffledQueue = useRef<Playable[]>(initialQueue);
+  const { user } = useAuth();
+  const { promptPlay, promptLogin } = useGuestGate();
+  const startingQueue = user ? initialQueue : [];
+  const [queue, setQueue] = useState<Playable[]>(startingQueue);
+  const unshuffledQueue = useRef<Playable[]>(startingQueue);
   const [index, setIndex] = useState(0);
-  const [sourceId, setSourceId] = useState<string | null>(initialQueueSource);
-  const [sourceName, setSourceName] = useState(initialQueueSourceName);
+  const [sourceId, setSourceId] = useState<string | null>(
+    user ? initialQueueSource : null
+  );
+  const [sourceName, setSourceName] = useState(user ? initialQueueSourceName : "");
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(42);
   const [shuffle, setShuffle] = useState(false);
@@ -99,7 +106,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [volume, setVolume] = useState(0.7);
   const [muted, setMuted] = useState(false);
   const [likedIds, setLikedIds] = useState<ReadonlySet<string>>(
-    () => new Set(initialLikedTrackIds)
+    () => new Set(user ? initialLikedTrackIds : [])
   );
 
   const [savedCollectionIds, setSavedCollectionIds] = useState<
@@ -107,9 +114,11 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   >(
     () =>
       new Set(
-        libraryEntities
-          .filter((e) => e.type === "playlist" || e.type === "album")
-          .map((e) => `${e.type}:${e.id}`)
+        user
+          ? libraryEntities
+              .filter((e) => e.type === "playlist" || e.type === "album")
+              .map((e) => `${e.type}:${e.id}`)
+          : []
       )
   );
 
@@ -124,6 +133,10 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       nextSourceName: string
     ) => {
       if (items.length === 0) return;
+      if (!user) {
+        promptPlay(items[startIndex]);
+        return;
+      }
       unshuffledQueue.current = items;
       if (shuffle) {
         const rest = items.filter((_, i) => i !== startIndex);
@@ -138,7 +151,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       setProgress(0);
       setIsPlaying(true);
     },
-    [shuffle]
+    [promptPlay, shuffle, user]
   );
 
   const togglePlay = useCallback(() => setIsPlaying((value) => !value), []);
@@ -184,6 +197,13 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
   const addToQueue = useCallback(
     (item: Playable) => {
+      if (!user) {
+        promptLogin({
+          title: "You’re logged out",
+          text: "Log in to add songs to your queue.",
+        });
+        return;
+      }
       const insertAfterCurrent = (list: Playable[], position: number) => [
         ...list.slice(0, position + 1),
         item,
@@ -196,7 +216,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         original.findIndex((entry) => entry.id === current?.id)
       );
     },
-    [current?.id, index]
+    [current?.id, index, promptLogin, user]
   );
 
   const toggleShuffle = useCallback(() => {
@@ -241,12 +261,21 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       muted,
       likedIds,
       savedCollectionIds,
-      toggleSavedCollection: (cardId) =>
+      toggleSavedCollection: (cardId) => {
+        if (!user) {
+          const kind = cardId.startsWith("album:") ? "album" : "playlist";
+          promptLogin({
+            title: "You’re logged out",
+            text: `Log in to save this ${kind} to Your Library.`,
+          });
+          return;
+        }
         setSavedCollectionIds((previousIds) => {
           const updated = new Set(previousIds);
           if (!updated.delete(cardId)) updated.add(cardId);
           return updated;
-        }),
+        });
+      },
       play,
       toggleSource,
       togglePlay,
@@ -265,12 +294,20 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         setMuted(false);
       },
       toggleMute: () => setMuted((on) => !on),
-      toggleLike: (id) =>
+      toggleLike: (id) => {
+        if (!user) {
+          promptLogin({
+            title: "You’re logged out",
+            text: "Log in to save this song to your Liked Songs.",
+          });
+          return;
+        }
         setLikedIds((previousIds) => {
           const updated = new Set(previousIds);
           if (!updated.delete(id)) updated.add(id);
           return updated;
-        }),
+        });
+      },
     }),
     [
       addToQueue,
@@ -281,6 +318,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       next,
       play,
       previous,
+      promptLogin,
       repeat,
       savedCollectionIds,
       shuffle,
@@ -291,6 +329,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       toggleSource,
       togglePlay,
       upNext,
+      user,
       volume,
     ]
   );

@@ -20,6 +20,8 @@ import { Fragment } from "react";
 import { formatDuration } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import ArtistLink from "./artist-link";
+import { useAuth } from "./auth-provider";
+import PreviewBanner from "./preview-banner";
 import CoverArt from "./cover-art";
 import ExplicitBadge from "./explicit-badge";
 import { LyricsIcon } from "./icons";
@@ -143,6 +145,11 @@ function VolumeControl() {
 }
 
 const BottomBar = ({ className }: { className?: string }) => {
+  const { user } = useAuth();
+  return user ? <PlayerBar className={className} /> : <PreviewBanner />;
+};
+
+const PlayerBar = ({ className }: { className?: string }) => {
   const { current, likedIds, toggleLike, isPlaying, togglePlay } = usePlayer();
   const { view, collapsed, toggleNowPlaying, toggleQueue } = usePanel();
   const queueOpen = !collapsed && view === "queue";

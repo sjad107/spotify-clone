@@ -1,14 +1,17 @@
 "use client";
 
 import { useMemo } from "react";
-import { currentUser, trackById, type Track } from "@/lib/mock-data";
+import { trackById, type Track } from "@/lib/mock-data";
+import { useAuth } from "./auth-provider";
 import CollectionView from "./collection-view";
 import CoverArt from "./cover-art";
 import { LikedSongsArt } from "./library";
 import { usePlayer } from "./player-provider";
 
 export default function LikedSongsPage() {
+  const { user } = useAuth();
   const { likedIds } = usePlayer();
+  const userName = user?.name ?? "";
   const tracks = useMemo(
     () =>
       [...likedIds]
@@ -27,12 +30,12 @@ export default function LikedSongsPage() {
       meta={
         <>
           <CoverArt
-            seed={currentUser.name}
+            seed={userName}
             shape="circle"
             variant="person"
             className="mr-1 !w-6"
           />
-          <span className="font-bold text-white">{currentUser.name}</span>
+          <span className="font-bold text-white">{userName}</span>
         </>
       }
       tint="#5038a0"

@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "./auth-provider";
+import GuestPanelView from "./guest-panel-view";
 import { ShowPanelChevronIcon } from "./icons";
 import NowPlayingView from "./now-playing-view";
 import { usePanel } from "./panel-provider";
@@ -22,6 +24,7 @@ const clampWidth = (width: number) =>
  * immediately and the content then slides into place (see globals.css).
  */
 export default function NowPlayingPanel() {
+  const { user } = useAuth();
   const { view, collapsed, slide, setCollapsed } = usePanel();
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -63,7 +66,13 @@ export default function NowPlayingPanel() {
             slide === "close" && "panel-slide-close"
           )}
         >
-          {view === "queue" ? <QueueView /> : <NowPlayingView />}
+          {!user ? (
+            <GuestPanelView />
+          ) : view === "queue" ? (
+            <QueueView />
+          ) : (
+            <NowPlayingView />
+          )}
         </div>
 
         <button
