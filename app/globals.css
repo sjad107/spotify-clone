@@ -9,3 +9,69 @@ body,
   background-color: black;
   color-scheme: dark;
 }
+
+body {
+  color: white;
+  overflow: hidden;
+}
+
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .spotify-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  }
+
+  /* Only shows while the panel is hovered. */
+  .panel-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .group\/panel:hover .panel-scrollbar {
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  }
+}
+
+/*
+ * The Now Playing panel's slide, using the easing and duration measured on
+ * open.spotify.com. The easing overshoots slightly. --panel-w is set on the
+ * panel, and 44px is the width of the minimized strip.
+ */
+@keyframes panel-slide-open {
+  from {
+    transform: translateX(calc(var(--panel-w) - 44px));
+  }
+}
+
+@keyframes panel-slide-close {
+  from {
+    transform: translateX(calc(44px - var(--panel-w)));
+  }
+}
+
+.panel-slide-open {
+  animation: panel-slide-open 0.5s cubic-bezier(0.47, 0, 0.23, 1.38);
+}
+
+.panel-slide-close {
+  animation: panel-slide-close 0.5s cubic-bezier(0.47, 0, 0.23, 1.38);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-slide-open,
+  .panel-slide-close {
+    animation: none;
+  }
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  display: none;
+}

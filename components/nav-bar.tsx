@@ -1,9 +1,9 @@
 "use client";
-import * as Separator from "@radix-ui/react-separator";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as Icons from "./icons";
+import NavBarSearch from "./nav-bar-search";
 import { cn } from "@/lib/utils";
 
 const NavBar = ({ className }: { className?: string }) => {
@@ -11,12 +11,12 @@ const NavBar = ({ className }: { className?: string }) => {
   return (
     <div
       className={cn(
-        `hidden md:flex md:flex-row md:justify-between md:items-center md:relative md:h-[64px] md:p-2 md:w-full`,
+        `hidden md:flex md:flex-row md:justify-between md:items-center md:relative md:h-[64px] md:shrink-0 md:p-2 md:w-full`,
         className
       )}
     >
       <div className="m-5 z-10">
-        <Link href="/">
+        <Link href="/" aria-label="Home">
           <Image
             src="/images/Spotify_Primary_Logo_RGB_White.png"
             alt="Logo"
@@ -25,51 +25,33 @@ const NavBar = ({ className }: { className?: string }) => {
           />
         </Link>
       </div>
-      <div className="flex justify-center items-center w-full absolute left-0 right-0 flex-grow flex-shrink z-0">
-        <div className="flex flex-row items-center justify-center flex-grow flex-shrink max-w-[546px] min-w-[350px] gap-x-2 ">
+      <div className="flex justify-center items-center w-full absolute left-0 right-0 flex-grow flex-shrink z-0 pointer-events-none">
+        <div className="pointer-events-auto flex flex-row items-center justify-center flex-grow flex-shrink max-w-[546px] min-w-[350px] gap-x-2 ">
           <Link
             href={"/"}
-            className="ms-2 p-3 relative w-12 h-12 bg-neutral-800 rounded-full flex justify-center items-center"
+            aria-label="Home"
+            className="ms-2 p-3 relative w-12 h-12 shrink-0 bg-neutral-800 rounded-full flex justify-center items-center transition hover:scale-105 hover:bg-spotify-elevated"
           >
             <span className="flex justify-center items-center text-center">
               {pathname === "/" ? <Icons.HomeIconActive /> : <Icons.HomeIcon />}
             </span>
           </Link>
-          <div className="relative w-full max-w-md h-12">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 w-12 h-12">
-              <Icons.SearchIcon />
-            </div>
-            <input
-              type="search"
-              placeholder="What do you want to play?"
-              className="w-full py-2 pl-12 pr-16 font-normal text-base text-zinc- bg-neutral-800 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-50 focus:border-grey-50 h-full"
-            />
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-              <Separator.Root
-                className="h-6 w-[1px] bg-gray-500 "
-                decorative
-                orientation="vertical"
-                style={{ margin: "0 15px" }}
-              />
-              <Link href={"/search"}>
-                {pathname === "/search" ? (
-                  <Icons.BrowseIconActive />
-                ) : (
-                  <Icons.BrowseIcon />
-                )}
-              </Link>
-            </div>
-          </div>
+          <NavBarSearch className="max-w-[474px]" />
         </div>
       </div>
       <div className="flex flex-row items-center justify-center gap-x-2 z-10 ">
-        <button className="bg-white rounded-full h-8 flex items-center justify-center">
+        <button className="hidden lg:flex bg-white rounded-full h-8 items-center justify-center transition hover:scale-105">
           <span className="text-black py-1 px-4 font-bold text-sm">
             Explore Premium
           </span>
         </button>
-        <Link href="https://open.spotify.com/" target="_blank" rel="noreferrer">
-          <span className=" text-white py-1 px-4 font-bold text-sm flex justify-center items-center gap-x-2">
+        <Link
+          href="https://open.spotify.com/"
+          target="_blank"
+          rel="noreferrer"
+          className="hidden xl:block text-spotify-subdued hover:text-white hover:scale-105 transition"
+        >
+          <span className="py-1 px-4 font-bold text-sm flex justify-center items-center gap-x-2">
             <span className="text-center">
               <svg
                 data-encore-id="icon"
@@ -86,7 +68,10 @@ const NavBar = ({ className }: { className?: string }) => {
           </span>
         </Link>
         <div className=" h-8 w-8 flex items-center justify-center">
-          <button>
+          <button
+            aria-label="What's New"
+            className="text-spotify-subdued hover:text-white hover:scale-105 transition"
+          >
             <svg
               data-encore-id="icon"
               role="img"
@@ -98,8 +83,17 @@ const NavBar = ({ className }: { className?: string }) => {
             </svg>
           </button>
         </div>
-        <button className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center">
-          <Image src="/images/pfp.webp" alt="Profile" width={40} height={40} />
+        <button
+          aria-label="Profile"
+          className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center transition hover:scale-105"
+        >
+          <Image
+            src="/images/pfp.webp"
+            alt="Profile"
+            width={32}
+            height={32}
+            className="h-8 w-8 rounded-full object-cover"
+          />
         </button>
       </div>
     </div>
