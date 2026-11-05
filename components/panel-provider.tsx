@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { searchHref } from "@/lib/format";
-import { libraryEntities } from "@/lib/mock-data";
+import { initialFollowedProfiles, libraryEntities } from "@/lib/mock-data";
 import { useAuth } from "./auth-provider";
 import { useGuestGate } from "./guest-gate";
 
@@ -46,8 +46,10 @@ interface PanelValue {
   /** The player bar's queue button and the "Open queue" link. */
   toggleQueue: () => void;
   closeQueue: () => void;
-  toggleFollow: (name: string) => void;
+  toggleFollow: (name: string, kind?: "artist" | "profile") => void;
   copyLink: (title: string) => void;
+  /** Copies a link to a path on this site, like "/user/me". */
+  copyPath: (path: string) => void;
   /** Null until resized, which leaves the width to the responsive defaults. */
   libraryWidth: number | null;
   libraryCompact: boolean;
@@ -76,7 +78,12 @@ export function PanelProvider({ children }: { children: React.ReactNode }) {
     () =>
       new Set(
         user
-          ? libraryEntities.flatMap((e) => (e.type === "artist" ? [e.name] : []))
+          ? [
+              ...libraryEntities.flatMap((e) =>
+                e.type === "artist" ? [e.name] : []
+              ),
+              ...initialFollowedProfiles.map((p) => p.name),
+            ]
           : []
       )
   );
@@ -129,11 +136,11 @@ export function PanelProvider({ children }: { children: React.ReactNode }) {
   const closeQueue = useCallback(() => setView("now-playing"), []);
 
   const toggleFollow = useCallback(
-    (name: string) => {
+    (name: string, kind: "artist" | "profile" = "artist") => {
       if (!user) {
         promptLogin({
           title: "You’re logged out",
-          text: "Log in to follow this artist.",
+          text: `Log in to follow this ${kind}.`,
         });
         return;
       }
@@ -146,17 +153,22 @@ export function PanelProvider({ children }: { children: React.ReactNode }) {
     [promptLogin, user]
   );
 
-  const copyLink = useCallback((title: string) => {
+  const copyPath = useCallback((path: string) => {
     const showToast = (message: string) => {
       setToast(message);
       clearTimeout(toastTimer.current);
       toastTimer.current = setTimeout(() => setToast(null), TOAST_MS);
     };
     navigator.clipboard
-      .writeText(`${window.location.origin}${searchHref(title)}`)
+      .writeText(`${window.location.origin}${path}`)
       .then(() => showToast("Link copied to clipboard"))
       .catch(() => showToast("Couldn't copy the link"));
   }, []);
+
+  const copyLink = useCallback(
+    (title: string) => copyPath(searchHref(title)),
+    [copyPath]
+  );
 
   const value = useMemo<PanelValue>(
     () => ({
@@ -175,6 +187,7 @@ export function PanelProvider({ children }: { children: React.ReactNode }) {
       closeQueue,
       toggleFollow,
       copyLink,
+      copyPath,
       libraryWidth,
       libraryCompact,
       setLibraryCompact,
@@ -186,6 +199,7 @@ export function PanelProvider({ children }: { children: React.ReactNode }) {
       closeQueue,
       collapsed,
       copyLink,
+      copyPath,
       creditsOpen,
       expanded,
       followedNames,

@@ -7,7 +7,7 @@ import type { CardItem } from "@/lib/mock-data";
 import MediaCard from "./media-card";
 
 interface ShelfProps {
-  title: string;
+  title?: string;
   items: CardItem[];
   /** Shown between the title and the cards. */
   headerExtra?: React.ReactNode;
@@ -51,18 +51,21 @@ export default function Shelf({ title, items, headerExtra }: ShelfProps) {
 
   return (
     <section className="-mx-3 mb-6">
-      <div className="mb-1 flex items-end justify-between gap-4 px-3">
-        <h2 className="truncate text-2xl font-bold">{title}</h2>
-        {(canScrollLeft || canScrollRight || expanded) && (
-          <button
-            type="button"
-            onClick={() => setExpanded((value) => !value)}
-            className="shrink-0 text-sm font-bold text-spotify-subdued hover:underline"
-          >
-            {expanded ? "Show less" : "Show all"}
-          </button>
-        )}
-      </div>
+      {/* Leave out the title when the caller renders its own heading. */}
+      {title && (
+        <div className="mb-1 flex items-end justify-between gap-4 px-3">
+          <h2 className="truncate text-2xl font-bold">{title}</h2>
+          {(canScrollLeft || canScrollRight || expanded) && (
+            <button
+              type="button"
+              onClick={() => setExpanded((value) => !value)}
+              className="shrink-0 text-sm font-bold text-spotify-subdued hover:underline"
+            >
+              {expanded ? "Show less" : "Show all"}
+            </button>
+          )}
+        </div>
+      )}
 
       {headerExtra}
 

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 interface CoverArtProps {
   seed: string;
   shape?: "square" | "circle";
-  variant?: "art" | "person";
+  variant?: "art" | "person" | "placeholder";
   /** Text printed on the artwork. Leave unset at small sizes. */
   label?: string;
   className?: string;
@@ -103,7 +103,10 @@ export default function CoverArt({
         className
       )}
       style={{
-        background: `linear-gradient(${angle}deg, ${from}, ${to})`,
+        background:
+          variant === "placeholder"
+            ? "#282828"
+            : `linear-gradient(${angle}deg, ${from}, ${to})`,
         containerType: "inline-size",
       }}
     >
@@ -112,7 +115,16 @@ export default function CoverArt({
         preserveAspectRatio="xMidYMid slice"
         className="absolute inset-0 h-full w-full"
       >
-        {variant === "person" ? (
+        {variant === "placeholder" ? (
+          // A person with a music note, for profiles without a photo.
+          <g fill="none" stroke="#b3b3b3" strokeWidth="3" strokeLinecap="round">
+            <circle cx="44" cy="38" r="11" />
+            <path d="M24 70c2-11 10-17 20-17 5 0 9 1 12 4" />
+            <path d="M64 50v18" />
+            <circle cx="60" cy="69" r="4" />
+            <path d="M64 50l8 3" />
+          </g>
+        ) : variant === "person" ? (
           <g fill="rgba(0,0,0,0.32)">
             <circle cx="50" cy="40" r="17" />
             <ellipse cx="50" cy="92" rx="34" ry="30" />

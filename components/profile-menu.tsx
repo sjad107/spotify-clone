@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ME_ID } from "@/lib/mock-data";
 import { useAuth } from "./auth-provider";
+import UserAvatar from "./user-avatar";
 
-const PLACEHOLDER_ITEMS = ["Account", "Profile", "Settings"];
+const PLACEHOLDER_ITEMS = ["Account", "Settings"];
 
 /** The avatar at the end of the navbar. */
 export default function ProfileMenu() {
@@ -41,19 +43,23 @@ export default function ProfileMenu() {
         onClick={() => setOpen((value) => !value)}
         className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-800 transition hover:scale-105"
       >
-        <Image
-          src="/images/pfp.webp"
-          alt=""
-          width={32}
-          height={32}
-          className="h-8 w-8 rounded-full object-cover"
-        />
+        <div className="h-10 w-10">
+        <UserAvatar  className="w-full h-full"/>
+        </div>
       </button>
       {open && (
         <div
           role="menu"
           className="absolute right-0 top-full z-50 mt-2 w-48 rounded bg-spotify-elevated p-1 shadow-[0_16px_24px_rgba(0,0,0,0.3),0_6px_8px_rgba(0,0,0,0.2)]"
         >
+          <Link
+            href={`/user/${ME_ID}`}
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className="flex h-10 w-full items-center rounded-sm px-3 text-left text-sm text-white/90 hover:bg-white/10"
+          >
+            Profile
+          </Link>
           {PLACEHOLDER_ITEMS.map((item) => (
             <button
               key={item}

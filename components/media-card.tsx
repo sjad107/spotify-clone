@@ -47,7 +47,8 @@ export default function MediaCard({ item, className }: MediaCardProps) {
           />
         )}
       </div>
-      {canPlay ? (
+      {/* Profiles have nothing to play but still have a page to open. */}
+      {canPlay || item.href ? (
         <StretchedAction
           href={item.href}
           onClick={onToggle}

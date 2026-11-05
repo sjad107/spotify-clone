@@ -21,7 +21,7 @@ import { usePlayer } from "./player-provider";
 import SongLink from "./song-link";
 import TrackMenu from "./track-menu";
 
-export type CollectionKind = "playlist" | "album" | "artist";
+export type CollectionKind = "playlist" | "album" | "artist" | "profile";
 type ColumnId = "album" | "artist" | "date" | "plays";
 
 /**
@@ -44,6 +44,10 @@ const COLUMNS: Record<
   artist: {
     list: { third: "plays" },
     compact: { third: "plays" },
+  },
+  profile: {
+    list: { third: "album" },
+    compact: { third: "album" },
   },
 };
 

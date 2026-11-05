@@ -6,8 +6,8 @@ import { PanelProvider } from "./panel-provider";
 import { PlayerProvider } from "./player-provider";
 
 /**
- * Keyed by the user, so logging in or out starts the player, library and
- * panels from fresh instead of leaking one account's state into the next.
+ * Keyed by whether anyone is logged in, so logging in or out starts the
+ * player, library and panels from fresh. Renaming yourself keeps them.
  */
 export default function AppProviders({
   children,
@@ -18,7 +18,7 @@ export default function AppProviders({
 
   return (
     <GuestGateProvider>
-      <PlayerProvider key={user?.name ?? "guest"}>
+      <PlayerProvider key={user ? "user" : "guest"}>
         <PanelProvider>{children}</PanelProvider>
       </PlayerProvider>
     </GuestGateProvider>

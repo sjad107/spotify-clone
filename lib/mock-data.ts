@@ -56,6 +56,8 @@ export interface Profile {
   type: "profile";
   id: string;
   name: string;
+  /** Profiles without a photo show the placeholder icon, as on Spotify. */
+  hasPhoto: boolean;
 }
 
 export interface Category {
@@ -93,7 +95,7 @@ export interface CardItem {
   subtitle: string;
   coverSeed: string;
   shape: "square" | "circle";
-  variant: "art" | "person";
+  variant: "art" | "person" | "placeholder";
   explicit: boolean;
   /** Printed on the artwork, like an editorial playlist cover. */
   label?: string;
@@ -400,6 +402,11 @@ export const playlists: Playlist[] = [
   playlist("live-sessions", "Live Sessions", "Recorded on stage. Turn it up.", ["Live Events", "Music"], ids("Amplifier Saints", "Black Water Hymn", "Everything Is a River")),
   playlist("gym-mode", "Gym Mode", "My workout rotation.", ["Mood"], ids("No Ceiling", "Undertow", "Insert Coin", "Ghost Money"), currentUser.name),
   playlist("road-trip", "Road Trip", "Windows down, volume up.", [], ids("Paper Planes at Dawn", "Rust & Roses", "Lantern Season", "Fuego Lento"), currentUser.name),
+  playlist("sunday-morning", "Sunday Morning", "Coffee first.", ["Mood"], ids("Woodsmoke", "Soft Focus", "Second Cup", "Blue Mirage"), currentUser.name),
+  playlist("late-night-drives", "Late Night Drives", "Empty roads and neon.", ["Mood"], ids("Portside", "Prism Runner", "Slow Strobe", "Tidal Lights"), "Sam Okafor"),
+  playlist("study-corner", "Study Corner", "Head down, volume low.", ["Mood"], ids("Etude in Rain", "Nocturne in Grey", "Sand and Brass"), "Rue Tanaka"),
+  playlist("kitchen-disco", "Kitchen Disco", "Dancing while the pasta boils.", ["Mood"], ids("Dock Party", "Insert Coin", "Baila Conmigo", "Golden Static"), "Noor Haddad"),
+  playlist("weekend-warm-up", "Weekend Warm-Up", "Friday starts here.", ["Mood"], ids("No Ceiling", "Fuego Lento", "Halo Effect"), "Kofi Mensah"),
 ];
 
 const show = (
@@ -430,10 +437,26 @@ export const shows: Show[] = [
   show("the-ninth-orchard", "Audiobook", "The Ninth Orchard", "Lena Harrow"),
 ];
 
+const profile = (id: string, name: string, hasPhoto: boolean): Profile => ({
+  type: "profile",
+  id,
+  name,
+  hasPhoto,
+});
+
 export const profiles: Profile[] = [
-  { type: "profile", id: "profile-sam", name: "Sam Okafor" },
-  { type: "profile", id: "profile-rue", name: "Rue Tanaka" },
-  { type: "profile", id: "profile-mel", name: "Mel Dupont" },
+  profile("profile-sam", "Sam Okafor", true),
+  profile("profile-rue", "Rue Tanaka", true),
+  profile("profile-mel", "Mel Dupont", false),
+  profile("profile-noor", "Noor Haddad", true),
+  profile("profile-leo", "Leo Brandt", false),
+  profile("profile-ines", "Inès Moreau", true),
+  profile("profile-kofi", "Kofi Mensah", true),
+  profile("profile-yuki", "Yuki Sato", false),
+  profile("profile-dara", "Dara Quinn", true),
+  profile("profile-ola", "Ola Nowak", false),
+  profile("profile-tess", "Tess Riley", true),
+  profile("profile-ravi", "Ravi Iyer", true),
 ];
 
 export const categories: Category[] = [
@@ -620,6 +643,79 @@ export function artistHrefByName(name: string): string {
   return artist ? `/artist/${artist.id}` : searchHref(name);
 }
 
+/** The logged-in user's profile lives at /user/me. */
+export const ME_ID = "me";
+
+export const profileById = (id: string) => profiles.find((p) => p.id === id);
+
+const byIds = (idList: string[]) =>
+  idList.map((id) => profileById(id)).filter((p): p is Profile => p !== undefined);
+
+export const myFollowers = byIds([
+  "profile-sam",
+  "profile-mel",
+  "profile-noor",
+  "profile-leo",
+  "profile-ines",
+  "profile-yuki",
+  "profile-dara",
+  "profile-tess",
+]);
+
+/** People the logged-in user follows on first load, alongside library artists. */
+export const initialFollowedProfiles = byIds([
+  "profile-sam",
+  "profile-rue",
+  "profile-kofi",
+  "profile-ravi",
+]);
+
+export const profilePlaylists = (ownerName: string) =>
+  playlists.filter((p) => p.owner === ownerName);
+
+/** A stable mock follower list for someone else's profile. */
+export function profileFollowers(profileId: string): Profile[] {
+  return profiles.filter(
+    (p) => p.id !== profileId && hashSeed(`${p.id}>${profileId}`) % 3 === 0
+  );
+}
+
+/** A stable mock following list for someone else's profile. */
+export function profileFollowing(profileId: string) {
+  return {
+    artists: artists.filter((a) => hashSeed(`${profileId}>${a.id}`) % 3 === 0),
+    profiles: profiles.filter(
+      (p) => p.id !== profileId && hashSeed(`${profileId}>${p.id}`) % 4 === 0
+    ),
+  };
+}
+
+const TOP_ARTIST_COUNT = 10;
+const TOP_TRACK_COUNT = 20;
+
+const ranked = <T extends { id: string }>(items: T[], salt: string) =>
+  [...items].sort(
+    (a, b) => hashSeed(`${salt}:${a.id}`) - hashSeed(`${salt}:${b.id}`)
+  );
+
+/** "Top artists this month" for the logged-in user. */
+export const myTopArtists = () =>
+  ranked(artists, "top-artists").slice(0, TOP_ARTIST_COUNT);
+
+/** "Top tracks this month" for the logged-in user. */
+export const myTopTracks = () =>
+  ranked(tracks, "top-tracks").slice(0, TOP_TRACK_COUNT);
+
+/** The artists behind the songs the player starts with, most recent first. */
+export function recentlyPlayedArtists(): Artist[] {
+  const seen = new Set<string>();
+  return [...initialQueue]
+    .flatMap((p) => p.artists)
+    .filter((name) => !seen.has(name) && seen.add(name))
+    .map((name) => artists.find((a) => a.name === name))
+    .filter((a): a is Artist => a !== undefined);
+}
+
 export const initialLikedTrackIds = ids(
   "Golden Static",
   "Slow Parade",
@@ -796,7 +892,8 @@ export function toCard(
         subtitle: "Profile",
         coverSeed: entity.id,
         shape: "circle",
-        variant: "person",
+        variant: entity.hasPhoto ? "person" : "placeholder",
+        href: `/user/${entity.id}`,
         playables,
       };
   }
