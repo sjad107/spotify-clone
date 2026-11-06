@@ -20,6 +20,7 @@ import { albumHref } from "@/lib/format";
 import { artistHrefByName, type Playable } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { MoreIcon } from "./icons";
+import { useCloneNotice } from "./clone-notice";
 import { usePanel } from "./panel-provider";
 import { usePlayer } from "./player-provider";
 
@@ -39,7 +40,7 @@ interface MenuEntry {
 const MENU_HEIGHT = 410;
 const PLAYER_BAR_HEIGHT = 72;
 
-/** The "..." button and its menu. Items with no mock behaviour just close it. */
+/** The "..." button and its menu. Items with no mock behaviour explain that. */
 export default function TrackMenu({
   item,
   label = "More",
@@ -48,6 +49,8 @@ export default function TrackMenu({
   const router = useRouter();
   const { likedIds, toggleLike, addToQueue } = usePlayer();
   const { setCreditsOpen, copyLink, setExpanded } = usePanel();
+  const { showCloneNotice } = useCloneNotice();
+  const cloneOnly = (feature: string) => () => showCloneNotice(feature);
   const [open, setOpen] = useState(false);
   const [openUpward, setOpenUpward] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -84,7 +87,7 @@ export default function TrackMenu({
   const liked = likedIds.has(item.id);
   const artist = item.artists[0];
   const entries: MenuEntry[] = [
-    { label: "Add to playlist", Icon: Plus },
+    { label: "Add to playlist", Icon: Plus, onSelect: cloneOnly("Add to playlist") },
     liked
       ? {
           label: "Remove from Liked Songs",
@@ -98,8 +101,12 @@ export default function TrackMenu({
           onSelect: () => toggleLike(item.id),
         },
     { label: "Add to queue", Icon: ListEnd, onSelect: () => addToQueue(item) },
-    { label: "Exclude from your taste profile", Icon: Ban },
-    { label: "Go to song radio", Icon: Radio },
+    {
+      label: "Exclude from your taste profile",
+      Icon: Ban,
+      onSelect: cloneOnly("Taste profile"),
+    },
+    { label: "Go to song radio", Icon: Radio, onSelect: cloneOnly("Song radio") },
     { label: "Go to artist", Icon: UserRound, onSelect: () => goTo(artistHrefByName(artist)) },
     ...(item.albumId
       ? [
@@ -116,7 +123,11 @@ export default function TrackMenu({
       onSelect: () => setCreditsOpen(true),
     },
     { label: "Share", Icon: Share2, onSelect: () => copyLink(item.title) },
-    { label: "Open in Desktop app", Icon: MonitorDown },
+    {
+      label: "Open in Desktop app",
+      Icon: MonitorDown,
+      onSelect: cloneOnly("The desktop app"),
+    },
   ];
 
   return (

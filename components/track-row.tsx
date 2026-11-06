@@ -12,6 +12,7 @@ import {
 } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import ArtistLink from "./artist-link";
+import { useCloneNotice } from "./clone-notice";
 import CoverArt from "./cover-art";
 import ExplicitBadge from "./explicit-badge";
 import { PauseGlyph, PlayGlyph } from "./play-button";
@@ -42,6 +43,7 @@ export default function TrackRow({
 }: TrackRowProps) {
   const { current, isPlaying, play, togglePlay, likedIds, toggleLike } =
     usePlayer();
+  const { showCloneNotice } = useCloneNotice();
   const active = current?.id === track.id;
   const playing = active && isPlaying;
   const liked = likedIds.has(track.id);
@@ -141,6 +143,7 @@ export default function TrackRow({
         <button
           type="button"
           aria-label={`More options for ${track.title}`}
+          onClick={() => showCloneNotice("More options")}
           className="opacity-0 transition-opacity hover:text-white focus-visible:opacity-100 group-hover:opacity-100"
         >
           <MoreHorizontal className="h-4 w-4" />

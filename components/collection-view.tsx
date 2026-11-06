@@ -15,6 +15,7 @@ import CollectionTrackRow, {
   collectionColumns,
   type CollectionKind,
 } from "./collection-track-row";
+import { useCloneNotice } from "./clone-notice";
 import { MoreIcon, SavedIcon } from "./icons";
 import { usePanel } from "./panel-provider";
 import PlayButton from "./play-button";
@@ -68,6 +69,7 @@ export default function CollectionView({
   const { sourceId: playerSource, isPlaying, toggleSource, shuffle, toggleShuffle } =
     usePlayer();
   const { tracklistView } = usePanel();
+  const { showCloneNotice } = useCloneNotice();
   const { sentinelRef, isStuck } = useStickyBar();
 
   const { third, fourth, grid } = collectionColumns(kind, tracklistView);
@@ -189,6 +191,7 @@ export default function CollectionView({
           <button
             type="button"
             aria-label="Download"
+            onClick={() => showCloneNotice("Download")}
             className="text-spotify-subdued transition hover:scale-105 hover:text-white"
           >
             <ArrowDownCircle className="h-8 w-8" />
@@ -196,6 +199,7 @@ export default function CollectionView({
           <button
             type="button"
             aria-label={`More options for ${title}`}
+            onClick={() => showCloneNotice("More options")}
             className="text-spotify-subdued transition hover:scale-105 hover:text-white"
           >
             <MoreIcon className="h-6 w-6" />

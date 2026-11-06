@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import "./globals.css";
 import { Figtree } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
+import { CloneNoticeProvider } from "@/components/clone-notice";
 import { parseSession, SESSION_COOKIE } from "@/lib/session";
 
 const font = Figtree({ subsets: ["latin"] });
@@ -23,7 +24,9 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${font.className} antialiased`}>
-        <AuthProvider initialUser={user}>{children}</AuthProvider>
+        <AuthProvider initialUser={user}>
+          <CloneNoticeProvider>{children}</CloneNoticeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -4,17 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { loginHref } from "@/lib/session";
 import { useAuth } from "./auth-provider";
+import { useCloneNotice } from "./clone-notice";
 import * as Icons from "./icons";
 import NavBarSearch from "./nav-bar-search";
 import ProfileMenu from "./profile-menu";
 import { cn } from "@/lib/utils";
 
 function InstallAppLink() {
+  const { showCloneNotice } = useCloneNotice();
   return (
-    <Link
-      href="https://open.spotify.com/"
-      target="_blank"
-      rel="noreferrer"
+    <button
+      type="button"
+      onClick={() => showCloneNotice("Install App")}
       className="hidden xl:block text-spotify-subdued hover:text-white hover:scale-105 transition"
     >
       <span className="py-1 px-4 font-bold text-sm flex justify-center items-center gap-x-2">
@@ -32,7 +33,7 @@ function InstallAppLink() {
         </span>
         <span className="text-center">Install App</span>
       </span>
-    </Link>
+    </button>
   );
 }
 
@@ -67,6 +68,7 @@ const GUEST_LINKS = ["Premium", "Support", "Download"];
 
 /** Logged out, the search sits beside the logo and links fill the right. */
 function GuestNav({ pathname }: { pathname: string }) {
+  const { showCloneNotice } = useCloneNotice();
   return (
     <div className="hidden md:flex md:h-[64px] md:shrink-0 md:items-center md:justify-between md:gap-4 md:p-2 md:w-full">
       <div className="flex min-w-0 flex-1 items-center gap-x-2">
@@ -79,13 +81,14 @@ function GuestNav({ pathname }: { pathname: string }) {
       <div className="relative z-50 flex shrink-0 items-center">
         <div className="hidden items-center gap-x-2 border-r border-white/50 pr-6 mr-2 lg:flex">
           {GUEST_LINKS.map((link) => (
-            <a
+            <button
               key={link}
-              href="#"
+              type="button"
+              onClick={() => showCloneNotice(link)}
               className="px-1 text-base font-bold text-spotify-subdued transition hover:scale-105 hover:text-white"
             >
               {link}
-            </a>
+            </button>
           ))}
         </div>
         <InstallAppLink />
@@ -109,6 +112,7 @@ function GuestNav({ pathname }: { pathname: string }) {
 const NavBar = ({ className }: { className?: string }) => {
   const pathname = usePathname();
   const { user } = useAuth();
+  const { showCloneNotice } = useCloneNotice();
 
   if (!user) return <GuestNav pathname={pathname} />;
 
@@ -129,7 +133,10 @@ const NavBar = ({ className }: { className?: string }) => {
         </div>
       </div>
       <div className="flex flex-row items-center justify-center gap-x-2 z-50">
-        <button className="hidden lg:flex bg-white rounded-full h-8 items-center justify-center transition hover:scale-105">
+        <button
+          type="button"
+          onClick={() => showCloneNotice("Premium")}
+          className="hidden lg:flex bg-white rounded-full h-8 items-center justify-center transition hover:scale-105">
           <span className="text-black py-1 px-4 font-bold text-sm">
             Explore Premium
           </span>
@@ -137,7 +144,9 @@ const NavBar = ({ className }: { className?: string }) => {
         <InstallAppLink />
         <div className=" h-8 w-8 flex items-center justify-center">
           <button
+            type="button"
             aria-label="What's New"
+            onClick={() => showCloneNotice("What's New")}
             className="text-spotify-subdued hover:text-white hover:scale-105 transition"
           >
             <svg

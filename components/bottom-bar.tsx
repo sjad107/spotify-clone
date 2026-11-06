@@ -21,6 +21,7 @@ import { formatDuration } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import ArtistLink from "./artist-link";
 import { useAuth } from "./auth-provider";
+import { useCloneNotice } from "./clone-notice";
 import PreviewBanner from "./preview-banner";
 import CoverArt from "./cover-art";
 import ExplicitBadge from "./explicit-badge";
@@ -152,6 +153,7 @@ const BottomBar = ({ className }: { className?: string }) => {
 const PlayerBar = ({ className }: { className?: string }) => {
   const { current, likedIds, toggleLike, isPlaying, togglePlay } = usePlayer();
   const { view, collapsed, toggleNowPlaying, toggleQueue } = usePanel();
+  const { showCloneNotice } = useCloneNotice();
   const queueOpen = !collapsed && view === "queue";
   const liked = current ? likedIds.has(current.id) : false;
   const LikeIcon = liked ? CheckCircle2 : PlusCircle;
@@ -245,14 +247,14 @@ const PlayerBar = ({ className }: { className?: string }) => {
           <ListMusic className="h-4 w-4" />
           <ToggleDot on={queueOpen} />
         </button>
-        <button type="button" aria-label="Connect to a device" className={cn(ICON_BUTTON, "hidden lg:flex")}>
+        <button type="button" aria-label="Connect to a device" onClick={() => showCloneNotice("Connect to a device")} className={cn(ICON_BUTTON, "hidden lg:flex")}>
           <MonitorSpeaker className="h-4 w-4" />
         </button>
         <VolumeControl />
-        <button type="button" aria-label="Open Miniplayer" className={cn(ICON_BUTTON, "hidden xl:flex")}>
+        <button type="button" aria-label="Open Miniplayer" onClick={() => showCloneNotice("Miniplayer")} className={cn(ICON_BUTTON, "hidden xl:flex")}>
           <PictureInPicture2 className="h-4 w-4" />
         </button>
-        <button type="button" aria-label="Enter Full screen" className={cn(ICON_BUTTON, "hidden xl:flex")}>
+        <button type="button" aria-label="Enter Full screen" onClick={() => showCloneNotice("Full screen")} className={cn(ICON_BUTTON, "hidden xl:flex")}>
           <Maximize2 className="h-4 w-4" />
         </button>
       </div>

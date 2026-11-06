@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Globe, Plus } from "lucide-react";
 import { CollapseLibraryIcon, LibraryIcon, OpenLibraryIcon } from "./icons";
+import { useCloneNotice } from "./clone-notice";
 import { useGuestGate } from "./guest-gate";
 import { usePanel } from "./panel-provider";
 
@@ -46,6 +47,7 @@ const PILL_BUTTON =
 export default function GuestLibrary({ compact }: { compact: boolean }) {
   const { promptLogin } = useGuestGate();
   const { setLibraryCompact } = usePanel();
+  const { showCloneNotice } = useCloneNotice();
 
   const onCreate = (event: React.MouseEvent<HTMLElement>) =>
     promptLogin({
@@ -133,17 +135,26 @@ export default function GuestLibrary({ compact }: { compact: boolean }) {
         <ul className="flex flex-wrap gap-x-4 gap-y-2 text-[11px] text-spotify-subdued">
           {LEGAL_LINKS.map((link) => (
             <li key={link}>
-              <a href="#" className="hover:underline">
+              <button
+                type="button"
+                onClick={() => showCloneNotice(link)}
+                className="hover:underline"
+              >
                 {link}
-              </a>
+              </button>
             </li>
           ))}
         </ul>
-        <a href="#" className="mt-4 inline-block text-xs text-white hover:underline">
-          Cookies
-        </a>
         <button
           type="button"
+          onClick={() => showCloneNotice("Cookies")}
+          className="mt-4 block text-xs text-white hover:underline"
+        >
+          Cookies
+        </button>
+        <button
+          type="button"
+          onClick={() => showCloneNotice("Language settings")}
           className="mt-6 flex h-8 items-center gap-1.5 rounded-full border border-spotify-muted px-3 text-sm font-bold text-white transition hover:scale-105 hover:border-white"
         >
           <Globe className="h-4 w-4" />

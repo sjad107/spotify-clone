@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,7 @@ import {
   maskEmail,
 } from "@/lib/session";
 import { useAuth } from "./auth-provider";
+import { REAL_SPOTIFY_URL, useCloneNotice } from "./clone-notice";
 
 const CODE_LENGTH = 6;
 
@@ -23,6 +24,8 @@ const SOCIAL_PROVIDERS = [
 ];
 
 const SOCIAL_USER_NAME = "Demo User";
+/** Remembers, per tab, that the welcome notice was shown. */
+const NOTICE_SEEN_KEY = "clone-login-notice-seen";
 
 interface LoginFormProps {
   nextPath: string;
@@ -41,6 +44,18 @@ export default function LoginForm({ nextPath, signup }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<"email" | "code">("email");
   const [error, setError] = useState<string | null>(null);
+  const { showLoginNotice } = useCloneNotice();
+
+  // Explain the demo once per tab, before anyone types anything.
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(NOTICE_SEEN_KEY)) return;
+      sessionStorage.setItem(NOTICE_SEEN_KEY, "1");
+    } catch {
+      // Storage can be blocked. Showing the notice again is harmless.
+    }
+    showLoginNotice();
+  }, [showLoginNotice]);
 
   const finish = (name: string) => {
     logIn(name);
@@ -146,7 +161,23 @@ export default function LoginForm({ nextPath, signup }: LoginFormProps) {
 
       <p className="max-w-[324px] pb-6 text-center text-xs text-spotify-subdued">
         Personal UI clone with a demo login. Nothing you enter is sent anywhere.
-        Please don&apos;t use real account details.
+        Please don&apos;t use real account details.{" "}
+        <button
+          type="button"
+          onClick={showLoginNotice}
+          className="text-white underline"
+        >
+          About this clone
+        </button>
+        {" · "}
+        <a
+          href={REAL_SPOTIFY_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-white underline"
+        >
+          Go to Spotify
+        </a>
       </p>
     </main>
   );

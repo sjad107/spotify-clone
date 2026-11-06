@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import CoverArt from "./cover-art";
 import { CollapseLibraryIcon, LibraryIcon, OpenLibraryIcon } from "./icons";
 import { useAuth } from "./auth-provider";
+import { useCloneNotice } from "./clone-notice";
 import { usePanel } from "./panel-provider";
 import { usePlayer } from "./player-provider";
 
@@ -69,6 +70,7 @@ export default function Library({ compact }: { compact: boolean }) {
   const { sourceId, isPlaying, toggleSource, likedIds, savedCollectionIds } =
     usePlayer();
   const { setLibraryCompact, followedNames } = usePanel();
+  const { showCloneNotice } = useCloneNotice();
   const [filter, setFilter] = useState<LibraryFilter | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [text, setText] = useState("");
@@ -168,6 +170,7 @@ export default function Library({ compact }: { compact: boolean }) {
             type="button"
             aria-label="Create"
             title="Create"
+            onClick={() => showCloneNotice("Create")}
             className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-spotify-highlight text-spotify-subdued transition hover:scale-105 hover:bg-spotify-elevated hover:text-white"
           >
             <Plus className="h-4 w-4" />
@@ -203,6 +206,7 @@ export default function Library({ compact }: { compact: boolean }) {
         </div>
         <button
           type="button"
+          onClick={() => showCloneNotice("Create")}
           className="flex h-8 shrink-0 items-center gap-2 rounded-full bg-white/10 pl-2 pr-4 text-sm font-bold transition-colors hover:bg-white/20"
         >
           <Plus className="h-4 w-4 text-spotify-subdued" />

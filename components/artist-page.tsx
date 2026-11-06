@@ -22,6 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 import ArtistAboutDialog, { RankBadge } from "./artist-about-dialog";
 import ArtistBackdrop from "./artist-backdrop";
+import { useCloneNotice } from "./clone-notice";
 import CollectionTrackRow from "./collection-track-row";
 import { titleSizeClass } from "./collection-view";
 import CoverArt from "./cover-art";
@@ -54,6 +55,7 @@ export default function ArtistPage({ artistId }: { artistId: string }) {
   const { sourceId, isPlaying, toggleSource, shuffle, toggleShuffle } =
     usePlayer();
   const { followedNames, toggleFollow } = usePanel();
+  const { showCloneNotice } = useCloneNotice();
   const { sentinelRef, isStuck } = useStickyBar();
   const [showAllPopular, setShowAllPopular] = useState(false);
   const [discography, setDiscography] = useState<DiscographyFilter>("popular");
@@ -184,6 +186,7 @@ export default function ArtistPage({ artistId }: { artistId: string }) {
           <button
             type="button"
             aria-label={`More options for ${artist.name}`}
+            onClick={() => showCloneNotice("More options")}
             className="text-spotify-subdued transition hover:scale-105 hover:text-white"
           >
             <MoreIcon className="h-6 w-6" />

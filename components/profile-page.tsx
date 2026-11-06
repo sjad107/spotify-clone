@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Settings } from "lucide-react";
 import { toCard } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { useCloneNotice } from "./clone-notice";
 import CollectionTrackRow from "./collection-track-row";
 import { titleSizeClass } from "./collection-view";
 import CoverArt from "./cover-art";
@@ -167,6 +168,7 @@ export default function ProfilePage({ profileId }: { profileId: string }) {
   const profile = useProfile(profileId);
   const { followedNames, toggleFollow } = usePanel();
   const [editing, setEditing] = useState(false);
+  const { showCloneNotice } = useCloneNotice();
 
   // The route checks the id, and /user/me sends guests to log in.
   if (!profile) return null;
@@ -264,6 +266,7 @@ export default function ProfilePage({ profileId }: { profileId: string }) {
             <button
               type="button"
               aria-label="Go to settings"
+              onClick={() => showCloneNotice("Settings")}
               className="text-spotify-subdued transition hover:scale-105 hover:text-white"
             >
               <Settings className="h-7 w-7" />

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ME_ID } from "@/lib/mock-data";
 import { useAuth } from "./auth-provider";
+import { useCloneNotice } from "./clone-notice";
 import UserAvatar from "./user-avatar";
 
 const PLACEHOLDER_ITEMS = ["Account", "Settings"];
@@ -13,6 +14,7 @@ const PLACEHOLDER_ITEMS = ["Account", "Settings"];
 export default function ProfileMenu() {
   const router = useRouter();
   const { user, logOut } = useAuth();
+  const { showCloneNotice } = useCloneNotice();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -65,7 +67,10 @@ export default function ProfileMenu() {
               key={item}
               type="button"
               role="menuitem"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                showCloneNotice(item);
+              }}
               className="flex h-10 w-full items-center rounded-sm px-3 text-left text-sm text-white/90 hover:bg-white/10"
             >
               {item}

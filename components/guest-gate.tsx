@@ -15,6 +15,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { coverColor } from "@/lib/cover";
 import type { Playable } from "@/lib/mock-data";
 import { loginHref } from "@/lib/session";
+import { useCloneNotice } from "./clone-notice";
 import CoverArt from "./cover-art";
 
 interface LoginPrompt {
@@ -44,6 +45,7 @@ export function GuestGateProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [playItem, setPlayItem] = useState<Playable | null>(null);
   const [playOpen, setPlayOpen] = useState(false);
+  const { showCloneNotice } = useCloneNotice();
   const [prompt, setPrompt] = useState<LoginPrompt | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -162,6 +164,10 @@ export function GuestGateProvider({ children }: { children: React.ReactNode }) {
                 </Link>
                 <button
                   type="button"
+                  onClick={() => {
+                    setPlayOpen(false);
+                    showCloneNotice("The Spotify app");
+                  }}
                   className="mt-4 h-12 rounded-full border border-spotify-muted px-8 text-base font-bold text-white transition hover:scale-105 hover:border-white"
                 >
                   Download app
